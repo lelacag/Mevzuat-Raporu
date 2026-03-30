@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Green circle background -->
+    <circle cx="256" cy="256" r="240" fill="#43a047"/>
+    
+    <!-- Central stand/pillar -->
+    <rect x="230" y="200" width="52" height="180" rx="26" fill="white"/>
+    
+    <!-- Base -->
+    <rect x="180" y="360" width="152" height="28" rx="14" fill="white"/>
+    
+    <!-- Horizontal beam -->
+    <rect x="130" y="180" width="252" height="36" rx="18" fill="white"/>
+    
+    <!-- Left chain -->
+    <line x1="165" y1="216" x2="165" y2="270" stroke="white" stroke-width="16"/>
+    
+    <!-- Right chain -->
+    <line x1="347" y1="216" x2="347" y2="270" stroke="white" stroke-width="16"/>
+    
+    <!-- Left pan -->
+    <ellipse cx="165" cy="290" rx="54" ry="18" fill="white"/>
+    
+    <!-- Right pan -->
+    <ellipse cx="347" cy="290" rx="54" ry="18" fill="white"/>
+</svg>

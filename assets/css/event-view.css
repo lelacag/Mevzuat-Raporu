@@ -1,0 +1,68 @@
+/* Event detail specific stylesheet (scoped to .page-event-view) */
+body.page-event-view .content-area.form-centered { max-width: 560px !important; width: 560px !important; margin: 0 auto 20px; box-sizing: border-box; }
+/* Safety-net: ensure single-column layouts for event pages cannot collapse narrower due to other rules */
+.main-container.single-column.page-event-view .content-area.form-centered { max-width: 560px !important; width: 560px !important; min-width: 560px !important; }
+
+
+.page-event-view .event-card.detail { background:#fff; border-radius:12px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,0.06); border:1px solid #f0f0f0; }
+.page-event-view .event-header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:12px; }
+.page-event-view .event-title { font-size:22px; font-weight:800; margin:0; color:#222; }
+.page-event-view .event-date { background:#2e7d32; color:#fff; padding:6px 12px; border-radius:999px; font-weight:700; font-size:13px; }
+.page-event-view .event-meta { color:#666; margin-bottom:12px; font-size:13px; }
+.page-event-view .event-description { color:#333; line-height:1.6; margin-bottom:18px; }
+
+.page-event-view .event-actions { display:flex; gap:12px; align-items:center; margin-bottom:18px; }
+.page-event-view .attendee-count { color:#666; font-size:13px; }
+.page-event-view .link-inline { margin-left:6px; color:#2e7d32; font-weight:600; text-decoration:none; }
+
+/* Postcard / updates */
+.page-event-view .event-updates { margin-top:8px; }
+.page-event-view .postcard.update-card { display:flex; gap:12px; align-items:flex-start; margin-bottom:12px; }
+.page-event-view .postcard-image img { width:220px; max-height:160px; object-fit:cover; border-radius:8px; }
+.page-event-view .postcard-body { flex:1; }
+.page-event-view .postcard-title { font-weight:800; font-size:16px; color:#222; }
+.page-event-view .postcard-meta { color:#7a7a7a; font-size:12px; margin-top:4px; }
+.page-event-view .postcard-content { margin-top:10px; color:#333; line-height:1.5; }
+
+/* Comments */
+.page-event-view .comments-section { margin-top:18px; }
+.page-event-view .comment-form textarea { width:100%; min-height:72px; }
+.page-event-view .event-comment { background:#fff; border:1px solid #eee; padding:10px; border-radius:8px; margin-bottom:10px; }
+.page-event-view .comment-header a { font-weight:700; color:#2e7d32; text-decoration:none; }
+
+/* Postcard-style comment card (matches event update postcard look) */
+.page-event-view .postcard.comment-card { display:flex; gap:12px; align-items:flex-start; background:#fff; border-radius:10px; padding:12px; border:1px solid #f0f0f0; margin-bottom:12px; }
+.page-event-view .postcard.comment-card .postcard-image img { width:160px; max-height:120px; object-fit:cover; border-radius:8px; }
+.page-event-view .postcard.comment-card .postcard-body { flex:1; }
+.page-event-view .postcard.comment-card .postcard-header { display:flex; justify-content:space-between; gap:12px; align-items:center; }
+.page-event-view .postcard.comment-card .postcard-title a { font-weight:800; color:#2e7d32; text-decoration:none; }
+.page-event-view .postcard.comment-card .postcard-meta { color:#7a7a7a; font-size:12px; }
+.page-event-view .postcard.comment-card .postcard-content { margin-top:8px; color:#333; line-height:1.5; }
+.page-event-view .postcard.comment-card .comment-actions { margin-top:10px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.page-event-view .postcard.comment-card .action-btn { background:none;border:1px solid #eee;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:13px; }
+.page-event-view .postcard.comment-card .action-btn.edit-btn { background:#fff;border:1px solid #e0e0e0; }
+.page-event-view .postcard.comment-card .action-btn.delete-btn { background:#fff;border:1px solid #fdecea;color:#e74c3c; }
+.page-event-view .postcard.comment-card .action-btn.report-btn { background:#fff;border:1px solid #ffeacc;color:#f39c12; }
+
+.page-event-view .comment-image img { width:100%; max-height:280px; object-fit:cover; display:block; border-radius:6px; margin:8px 0; }
+.page-event-view .comment-actions { display:flex; gap:8px; align-items:center; margin-top:8px; }
+.page-event-view .comment-edit-form textarea { width:100%; }
+.page-event-view .report-form { margin-top:8px; }
+.page-event-view .small.muted { color:#888; font-size:12px; margin-left:8px; }
+
+/* Attendees */
+.page-event-view .attendee-list { list-style:none; padding:0; margin:12px 0 0; }
+.page-event-view .attendee-row { display:flex; gap:10px; align-items:center; padding:10px; border-radius:8px; background:#fbfbfb; border:1px solid #f0f0f0; margin-bottom:8px; }
+
+/* Buttonized attendees CTA used on event detail */
+.btn-attendees { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; background:#2e7d32; color:#fff; border-radius:6px; border:0; text-decoration:none; font-weight:700; }
+.btn-attendees:hover { background:#256626; }
+.attendees-cta { margin-top:12px; }
+
+.page-event-view .back-link { margin-top:18px; }
+
+/* Responsive */
+@media (max-width: 720px) {
+    body.page-event-view .content-area.form-centered { width:100%; max-width:520px; padding:12px; }
+    .page-event-view .postcard-image img { width:140px; }
+}

@@ -1,0 +1,65 @@
+/* Active Users - minimal, fashionable grid */
+.active-users-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* simple 3-column grid */
+    gap: 18px;
+    margin-top: 18px;
+    justify-content: center;
+}
+
+@media (max-width: 900px) {
+    .active-users-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px) {
+    .active-users-grid { grid-template-columns: 1fr; }
+}
+/* Suggestions grid tweaks to match active users look */
+.suggestions-grid .user-card { display:flex; flex-direction:column; justify-content:space-between; align-items:center; text-align:center; padding:14px; min-height:160px; }
+.suggestions-grid .user-card .avatar { width:56px;height:56px;border-radius:50%;background:#f0f0f0;color:#333;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;margin-bottom:6px; }
+.suggestions-grid .user-card .actions { margin-top:10px; display:flex; justify-content:center; align-items:center; }
+.suggestions-grid .user-card .actions .follow-btn-compact { min-width:100%; max-width:140px; padding:8px 12px; }
+
+/* Pulse animation for online dot */
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(46,204,113,0.4); } 70% { box-shadow: 0 0 0 10px rgba(46,204,113,0); } 100% { box-shadow: 0 0 0 0 rgba(46,204,113,0); } }
+.user-online .online-dot { animation: pulse 2s infinite; }
+
+/* Header username stronger visibility */
+.user-menu a:first-child { color: #222 !important; font-weight:700 !important; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }.user-card {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 14px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    align-items:center;
+    text-align:center;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.03);
+}
+
+.user-card .avatar {
+    width:56px;height:56px;border-radius:50%;background:#f0f0f0;color:#333;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;margin-bottom:6px;
+}
+
+/* Center internal user-info content (status, username, bio) */
+.user-card .user-info { display:flex; flex-direction:column; align-items:center; text-align:center; }
+.user-card .username { font-weight:700; color:#222; text-decoration:none; }
+.user-card .premium-star { margin-left:6px; color:#ffd700; }
+.user-card .bio { color:#666; font-size:13px; margin-top:6px; }
+.user-card .last-activity { color:#999; font-size:12px; margin-top:8px; }
+
+/* Online indicator (compact & centered) */
+.user-online { display:flex; align-items:center; gap:6px; justify-content:center; }
+.user-online .online-dot { width:8px;height:8px;border-radius:50%;background:#2ecc71;box-shadow:0 0 6px rgba(46,204,113,0.3); }
+.user-online .online-text { color:#2e7d32; font-size:12px; font-weight:600; }
+
+.section-sub { color:#555; margin-bottom:8px; }
+
+.pagination { display:flex; gap:12px; align-items:center; justify-content:center; margin:18px 0; }
+.page-link { color:#2e7d32; text-decoration:none; font-weight:600; padding:6px 10px; border-radius:6px; border:1px solid transparent; }
+.page-link.disabled { color:#bbb; pointer-events:none; border-color:transparent; }
+.page-info { color:#666 }
+
+@media (max-width:520px) {
+    .active-users-grid { grid-template-columns: 1fr; }
+}

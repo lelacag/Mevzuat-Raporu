@@ -1,0 +1,276 @@
+#!/bin/bash
+# Starts Xvfb on :1, launches the ServerController GUI there,
+# and (if available) exposes the display via x11vnc on port 5901.
+set -euo pipefail
+XVFB_DISPLAY=":1"
+SCREEN_RES="1024x768x24"
+# use controlled runtime/log directories
+RUNDIR="/var/run/servercontroller"
+LOGDIR="/var/log/servercontroller"
+XVFB_PID_FILE="$RUNDIR/xvfb_${USER}.pid"
+GUI_PID_FILE="$RUNDIR/servercontroller_gui.pid"
+
+if ! command -v Xvfb >/dev/null 2>&1; then
+  echo "Xvfb not found on PATH. Please install it (e.g. apt install xvfb)."
+  exit 1
+fi
+
+# start Xvfb if not already
+if ! pgrep -f "Xvfb ${XVFB_DISPLAY}" >/dev/null 2>&1; then
+  echo "Starting Xvfb on ${XVFB_DISPLAY}..."
+  Xvfb ${XVFB_DISPLAY} -screen 0 ${SCREEN_RES} >/tmp/xvfb.log 2>&1 &
+  echo $! > "${XVFB_PID_FILE}"
+  sleep 1
+else
+  echo "Xvfb already running on ${XVFB_DISPLAY}"
+fi
+
+export DISPLAY=${XVFB_DISPLAY}
+
+# ensure runtime/log dirs exist and are writable
+mkdir -p "$RUNDIR" "$LOGDIR" || true
+chown ${USER}:${USER} "$RUNDIR" "$LOGDIR" 2>/dev/null || true
+
+LOGFILE="$LOGDIR/servercontroller_gui.log"
+echo "Launching ServerController GUI on ${DISPLAY} (logs -> ${LOGFILE})"
+cd /srv/www/mevzuatraporu/tools
+java -cp . ServerController gui >"${LOGFILE}" 2>&1 &
+echo $! > "${GUI_PID_FILE}"
+sleep 1
+
+# if x11vnc is available, start it to expose VNC on 5901
+if command -v x11vnc >/dev/null 2>&1; then
+  # require a stored password for x11vnc
+  VNC_PASSFILE="$HOME/.vnc/passwd"
+  if [ ! -f "$VNC_PASSFILE" ]; then
+    echo "x11vnc is installed but no password file found at ${VNC_PASSFILE}."
+    echo "Create one with: x11vnc -storepasswd /home/youruser/.vnc/passwd"
+    echo "Aborting automatic x11vnc start for security."
+  else
+    echo "Starting x11vnc to expose VNC :5901 (authenticated via ${VNC_PASSFILE})"
+    x11vnc -display ${DISPLAY} -rfbauth "$VNC_PASSFILE" -forever -shared -rfbport 5901 >"$LOGDIR/x11vnc.log" 2>&1 &
+    echo "VNC server listening on port 5901. Connect with a VNC client to <host>:5901 (recommended: restrict access via firewall)"
+  fi
+else
+  echo "x11vnc not installed. To view the GUI remotely, install x11vnc and run:"
+  echo "  sudo apt install x11vnc  # or your distro package manager"
+  echo "Then re-run this script; it will start x11vnc automatically."
+  echo "Alternatively use SSH X11 forwarding: ssh -X user@host and run the GUI locally."
+fi
+
+echo "To stop:"
+echo "  kill \"$(cat ${GUI_PID_FILE})\" || true"
+echo "  kill \"$(cat ${XVFB_PID_FILE})\" || true"
+#!/bin/bash
+# Starts Xvfb on :1, launches the ServerController GUI there,
+# and (if available) exposes the display via x11vnc on port 5901.
+set -euo pipefail
+XVFB_DISPLAY=":1"
+SCREEN_RES="1024x768x24"
+# use controlled runtime/log directories (default system paths)
+RUNDIR="/var/run/servercontroller"
+LOGDIR="/var/log/servercontroller"
+XVFB_PID_FILE="$RUNDIR/xvfb_${USER}.pid"
+GUI_PID_FILE="$RUNDIR/servercontroller_gui.pid"
+
+if ! command -v Xvfb >/dev/null 2>&1; then
+  echo "Xvfb not found on PATH. Please install it (e.g. apt install xvfb)."
+  exit 1
+fi
+
+# start Xvfb if not already
+if ! pgrep -f "Xvfb ${XVFB_DISPLAY}" >/dev/null 2>&1; then
+  echo "Starting Xvfb on ${XVFB_DISPLAY}..."
+  Xvfb ${XVFB_DISPLAY} -screen # start Xvfb if not already
+if ! pgrep -f "Xvfb ${XVFB_DISPLAY}" >/dev/null 2>&1; then The Terrifying Origin of The Borg | Star Trek Destiny
+Rowan J Coleman ve 2 diğer kanal0 ${SCREEN_RES} >/tmp/xvfb.log 2>&1 &
+  echo $! > "${XVFB_PID_FILE}"
+  sleep 1
+else
+  echo "Xvfb already running on ${XVFB_DISPLAY}"
+fi
+
+export DISPLAY=${XVFB_DISPLAY}
+
+# if running as non-root, prefer user-local runtime/log dirs
+#!/bin/bash
+# Starts Xvfb on :1, launches the ServerController GUI there,
+# and (if available) exposes the display via x11vnc on port 5901.
+set -euo pipefail
+XVFB_DISPLAY=":1"
+SCREEN_RES="1024x768x24"
+# use controlled runtime/log directories
+RUNDIR="/var/run/servercontroller"
+LOGDIR="/var/log/servercontroller"
+XVFB_PID_FILE="$RUNDIR/xvfb_${USER}.pid"
+GUI_PID_FILE="$RUNDIR/servercontroller_gui.pid"
+
+if ! command -v Xvfb >/dev/null 2>&1; then
+  echo "Xvfb not found on PATH. Please install it (e.g. apt install xvfb)."
+  exit 1
+fi
+
+# start Xvfb if not already
+if ! pgrep -f "Xvfb ${XVFB_DISPLAY}" >/dev/null 2>&1; then
+  echo "Starting Xvfb on ${XVFB_DISPLAY}..."
+  Xvfb ${XVFB_DISPLAY} -screen 0 ${SCREEN_RES} >/tmp/xvfb.log 2>&1 &
+  echo $! > "${XVFB_PID_FILE}"
+  sleep 1
+else
+  echo "Xvfb already running on ${XVFB_DISPLAY}"
+fi
+
+export DISPLAY=${XVFB_DISPLAY}
+
+# ensure runtime/log dirs exist and are writable
+mkdir -p "$RUNDIR" "$LOGDIR" || true
+chown ${USER}:${USER} "$RUNDIR" "$LOGDIR" 2>/dev/null || true
+
+LOGFILE="$LOGDIR/servercontroller_gui.log"
+echo "Launching ServerController GUI on ${DISPLAY} (logs -> ${LOGFILE})"
+cd /srv/www/mevzuatraporu/tools
+java -cp . ServerController gui >"${LOGFILE}" 2>&1 &
+echo $! > "${GUI_PID_FILE}"
+sleep 1
+
+# if x11vnc is available, start it to expose VNC on 5901
+if command -v x11vnc >/dev/null 2>&1; then
+  # require a stored password for x11vnc
+  VNC_PASSFILE="$HOME/.vnc/passwd"
+  if [ ! -f "$VNC_PASSFILE" ]; then
+    echo "x11vnc is installed but no password file found at ${VNC_PASSFILE}."
+    echo "Create one with: x11vnc -storepasswd /home/youruser/.vnc/passwd"
+    echo "Aborting automatic x11vnc start for security."
+  else
+    echo "Starting x11vnc to expose VNC :5901 (authenticated via ${VNC_PASSFILE})"
+    x11vnc -display ${DISPLAY} -rfbauth "$VNC_PASSFILE" -forever -shared -rfbport 5901 >"$LOGDIR/x11vnc.log" 2>&1 &
+    echo "VNC server listening on port 5901. Connect with a VNC client to <host>:5901 (recommended: restrict access via firewall)"
+  fi
+else
+  echo "x11vnc not installed. To view the GUI remotely, install x11vnc and run:"
+  echo "  sudo apt install x11vnc  # or your distro package manager"
+  echo "Then re-run this script; it will start x11vnc automatically."
+  echo "Alternatively use SSH X11 forwarding: ssh -X user@host and run the GUI locally."
+fi
+
+echo "To stop:"
+echo "  kill \"$(cat ${GUI_PID_FILE})\" || true"
+echo "  kill \"$(cat ${XVFB_PID_FILE})\" || true"
+if ! pgrep -f "Xvfb ${XVFB_DISPLAY}" >/dev/null 2>&1; thenLOGFILE="$LOGDIR/servercontroller_gui.log" ... Tabi girmemle çıkmam bir oldu. Hatta çıkmam girmemden önce oldu. Veya bana öyle geldi. Neyse efendim biz bunlan böylecene tanıştık, muhabbet ettik, doğu sanatlarından bahsettik, tütsü yaktık, alkol aldık falan. O gün öyle geçti, bi süre görüşemedik.
+echo "Launching ServerController GUI on ${DISPLAY} (logs -> ${LOGFILE})"
+cd /srv/www/mevzuatraporu/tools
+  echo "Starting Xvfb on ${XVFB_DISPLAY}..."
+  Xvfb ${XVFB_DISPLAY} -screen 0 ${SCREEN_RES} >/tmp/xvfb.log 2>&1 &
+  echo $! > "${XVFB_PID_FILE}"LOGFILE="$LOGDIR/servercontroller_gui.log" ... Tabi girmemle çıkmam bir oldu. Hatta çıkmam girmemden önce oldu. Veya bana öyle geldi. Neyse efendim biz bunlan böylecene tanıştık, muhabbet ettik, doğu sanatlarından bahsettik, tütsü yaktık, alkol aldık falan. O gün öyle geçti, bi süre görüşemedik.
+echo "Launching ServerControlle# start Xvfb if not already
+if ! pgrep -f "Xvfb ${XVFB_DISPLAY}" >/dev/null 2>&1; then The Terrifying Origin of The Borg | Star Trek Destiny
+Rowan J Coleman ve 2 diğer kanalr GUI on ${DISPLAY} (logs -> ${LOGFILE})"
+cd /srv/www/mevzuatraporu/tools
+  sleep 1
+else
+  echo "Xvfb already running on ${XVFB_DISPLAY}"
+fi
+
+export DISPLAY=${XVFB_DISPLAY}
+
+# if running as non-root, prefer user-local runtime/log dirs
+if [ "$(id -u)" -ne 0 ]; then
+  RUNDIR="${HOME}/.local/run/servercontroller"
+  LOGDIR="${HOME}/.local/log/servercontroller"
+fi
+
+# ensure runtime/log dirs exist and are writable
+mkdir -p "$RUNDIR" "$LOGDIR"
+if [ "$(id -u)" -eq 0 ]; then
+  # try to set ownership by name, fall back to numeric ids
+  chown "${USER}:${USER}" "$RUNDIR" "$LOGDIR" 2>/dev/null || chown "$(id -u):$(id -g)" "$RUNDIR" "$LOGDIR" 2>/dev/null || true
+else
+  # ensure the current user can write the dirs
+  chmod u+rwx "$RUNDIR" "$LOGDIR" 2>/dev/null || true
+fi
+
+LOGFILE="$LOGDIR/servercontroller_gui.log" ... Tabi girmemle çıkmam bir oldu. Hatta çıkmam girmemden önce oldu. Veya bana öyle geldi. Neyse efendim biz bunlan böylecene tanıştık, muhabbet ettik, doğu sanatlarından bahsettik, tütsü yaktık, alkol aldık falan. O gün öyle geçti, bi süre görüşemedik.
+echo "Launching ServerController GUI on ${DISPLAY} (logs -> ${LOGFILE})"
+cd /srv/www/mevzuatraporu/tools
+java -cp . ServerController gui >"${LOGFILE}" 2>&1 &
+echo $! > "${GUI_PID_FILE}"
+sleep 1
+
+# if x11vnc is available, start it to expose VNC on 5901# start Xvfb if not alreadyLOGFILE="$LOGDIR/servercontroller_gui.log" ... Tabi girmemle çıkmam bir oldu. Hatta çıkmam girmemden önce oldu. Veya bana öyle geldi. Neyse efendim biz bunlan böylecene tanıştık, muhabbet ettik, doğu sanatlarından bahsettik, tütsü yaktık, alkol aldık falan. O gün öyle geçti, bi süre görüşemedik.
+echo "Launching ServerController GUI on ${DISPLAY} (logs -> ${LOGFILE})"
+cd /srv/www/mevzuatraporu/tools
+if ! pgrep -f "Xvfb ${XVFB_DISPLAY}" >/dev/null 2>&1; thenLOGFILE="$LOGDIR/servercontroller_gui.log" ... Tabi girmemle çıkmam bir oldu. Hatta çıkmam girmemden önce oldu. Veya bana öyle geldi. Neyse efendim biz bunlan böylecene tanıştık, muhabbet ettik, doğu sanatlarından bahsettik, tütsü yaktık, alkol aldık falan. O gün öyle geçti, bi süre görüşemedik.
+echo "Launching ServerController GUI on ${DISPLAY} (logs -> ${LOGFILE})"
+cd /srv/www/mevzuatraporu/tools
+  echo "Startin# start Xvfb if not already
+if ! pgrep -f "Xvfb ${XVFB_DISPLAY}" >/dev/null 2>&1; then The Terrifying Origin of The Borg | Star Trek Destiny
+Rowan J Coleman ve 2 diğer kanalg Xvfb on ${XVFB_DISPLAY}..."
+  Xvfb ${XVFB_DISPLAY} -screen 0 ${SCREEN_RES} >/tmp/xvfb.log 2>&1 &
+  echo $! > "${XVFB_PID_FILE}"LOGFILE="$LOGDIR/servercontroller_gui.log" ... Tabi girmemle çıkmam bir oldu. Hatta çıkmam girmemden önce oldu. Veya bana öyle geldi. Neyse efendim biz bunlan böylecene tanıştık, muhabbet ettik, doğu sanatlarından bahsettik, tütsü yaktık, alkol aldık falan. O gün öyle geçti, bi süre görüşemedik.
+echo "Launching ServerController GUI on ${DISPLAY} (logs -> ${LOGFILE})"
+cd /srv/www/mevzuatraporu/tools
+  sleep 1
+else
+  echo "Xvfb already running on ${XVFB_DISPLAY}"
+fi
+
+export DISPLAY=${XVFB_DISPLAY}
+
+# ensure runtime/log dirs exist and are writable
+mkdir -p "$RUNDIR"# start Xvfb i# start Xvfb if not already
+if ! pgrep -f "Xvfb ${XVFB_DISPLAY}" >/dev/null 2>&1; then The Terrifying Origin of The Borg | Star Trek Destiny
+Rowan J Coleman ve 2 diğer kanalf not already
+if ! pgrep -f "Xvfb ${XVFB_DISPLAY}" >/dev/null 2>&1; then The Terrifying Origin of The Borg | Star Trek Destiny
+Rowan J Coleman ve 2 diğer kanal "$LOGDIR" || true
+chown ${USER}:${USER} "$RUNDIR" "$LOGDIR" 2>/dev/null || true
+
+LOGFILE="$LOGDIR/servercontroller_gui.log" ... Tabi girmemle çıkmam bir oldu. Hatta çıkmam girmemden önce oldu. Veya bana öyle geldi. Neyse efendim biz bunlan böylecene tanıştık, muhabbet ettik, doğu sanatlarından bahsettik, tütsü yaktık, alkol aldık falan. O gün öyle geçti, bi süre görüşemedik.
+echo "Launching ServerController GUI on ${DISPLAY} (logs -> ${LOGFILE})"
+cd /srv/www/mevzuatraporu/tools
+java -cp . ServerController gui >"${LOGFILE}" 2>&1 &
+echo $! > "${GUI_PID_FILE}"
+sleep 1
+# zypper install git
+# if x11vnc is available, start it to expose VNC on 5901
+# start Xvfb if not alreadyLOGFILE="$LOGDIR/servercontroller_gui.log" ... Tabi girmemle çıkmam bir oldu. Hatta çıkmam girmemden önce oldu. Veya bana öyle geldi. Neyse efendim biz bunlan böylecene tanıştık, muhabbet ettik,
+# start Xvfb if not alreadyLOGFILE="$LOGDIR/servercontroller_gui.log" ... Tabi girmemle çıkmam bir oldu. Hatta çıkmam girmemden önce oldu. Veya bana öyle geldi. Neyse efendim biz bunlan böylecene tanıştık, muhabbet ettik,
+  echo "Xvfb already running on ${XVFB_DISPLAY}"
+fi
+
+export DISPLAY=${XVFB_DISPLAY}
+
+# ensure runtime/log dirs exist and are writable
+mkdir -p "$RUNDIR" "$LOGDIR" || true
+chown ${USER}:${USER} "$RUNDIR" "$LOGDIR" 2>/dev/null || true
+
+LOGFILE=# zypper install git"$LOGDIR/servercontroller_gui.log"
+echo "Launching ServerController GUI on ${DISPLAY} (logs -> ${LOGFILE})"
+cd /srv/www/mevzuatraporu/tools
+java -cp . ServerController gui >"${LOGFILE}" 2>&1 &
+echo $! > "${GUI_PID_FILE}"
+sleep 1
+
+# if x11vnc is available, start it to expose VNC on 5901
+if command -v x11vnc >/dev/null 2>&1; then
+  # require a stored password for x11vnc
+  VNC_PASSFILE="$HOME/.vnc/passwd"
+  if [ ! -f "$VNC_PASSFILE" ]; then
+    echo "x11vnc is installed but no password file found at ${VNC_PASSFILE}."
+    echo# zypper install git "Create one with: x11vnc -storepasswd /home/youruser/.vnc/passwd"
+    echo "Aborting automatic x11vnc start for security."
+  else
+    echo "Starting x11vnc to expose VNC :5901 (authenticated via ${VNC_PASSFILE})"
+    x11vnc -display ${DISPLAY} -rfbauth "$VNC_PASSFILE" -forever -shared -rfbport 5901 >"$LOGDIR/x11vnc.log" 2>&1 &
+    echo "VNC server listening on port 5901. Connect with a VNC client to <host>:5901 (recommended: restrict access via firewall)"
+  fi
+else
+  echo "x11vnc not installed. To view the GUI remotely, install x11vnc and run:"
+  echo "  sudo apt install x11vnc  # or your distro package manager"
+  echo "Then re-run this script; it will start x11vnc automatically."
+  echo "Alternatively use SSH X11 forwarding: ssh -X user@host and run the GUI locally."
+fi
+# zypper install git
+echo "To stop:"
+echo "  kill \"$(cat ${GUI_PID_FILE})\" || true"
+echo "  kill \"$(cat ${XVFB_PID_FILE})\" || true"
+# zypper install git

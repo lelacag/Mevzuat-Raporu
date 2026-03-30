@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>District Mesh Network - Prototype</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+        }
+        
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-indicator.online {
+            background: #28a745;
+        }
+        
+        .status-indicator.offline {
+            background: #dc3545;
+        }
+        
+        .status-indicator.mesh {
+            background: #ffc107;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .mode-toggle {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .mode-toggle:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+        
+        .sidebar {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        
+        .sidebar h2 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 20px;
+        }
+        
+        .district-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .district-item {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .district-item:hover {
+            border-color: #007bff;
+            background: #f8f9fa;
+        }
+        
+        .district-item.active {
+            border-color: #007bff;
+            background: #e7f3ff;
+        }
+        
+        .district-item.joined {
+            border-left: 4px solid #28a745;
+        }
+        
+        .district-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .district-code {
+            background: #007bff;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+        
+        .district-stats {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+        }
+        
+        .join-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 8px;
+            width: 100%;
+        }
+        
+        .join-btn:hover {
+            background: #218838;
+        }
+        
+        .feed-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .feed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .mesh-nodes {
+            background: #fff3cd;
+            padding: 10px 15px;
+            border-radius: 6px;
+            border-left: 4px solid #ffc107;
+            font-size: 14px;
+        }
+        
+        .post-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .post-form textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .post-form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .post-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .post-btn:hover {
+            background: #0056b3;
+        }
+        
+        .offline-badge {
+            background: #dc3545;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .posts-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .post-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .post-card.mesh-origin {
+            border-left: 4px solid #ffc107;
+            background: #fffbf0;
+        }
+        
+        .post-card.synced {
+            border-left: 4px solid #28a745;
+        }
+        
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .post-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .username {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .post-time {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .post-badge {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .badge-mesh {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-synced {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-local {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .post-content {
+            color: #333;
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+        
+        .post-actions {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+        
+        .action-btn:hover {
+            color: #007bff;
+        }
+        
+        .action-btn.liked {
+            color: #dc3545;
+        }
+        
+        .mesh-visualization {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .mesh-nodes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .mesh-node {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #28a745;
+            position: relative;
+        }
+        
+        .mesh-node.disconnected {
+            border-color: #dc3545;
+            opacity: 0.5;
+        }
+        
+        .node-icon {
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+        
+        .node-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .node-distance {
+            font-size: 11px;
+            color: #666;
+            margin-top: 3px;
+        }
+        
+        .sync-log {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .log-entry {
+            font-size: 12px;
+            padding: 5px;
+            margin: 3px 0;
+            border-left: 3px solid #007bff;
+            padding-left: 10px;
+        }
+        
+        .log-entry.success {
+            border-color: #28a745;
+            color: #155724;
+        }
+        
+        .log-entry.error {
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        
+        .request-online-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .request-online-btn:hover {
+            background: #218838;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .btn-confirm {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .empty-state-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .mesh-nodes-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🌐 District Mesh Network</h1>
+            <div class="connection-status">
+                <div class="status-indicator" id="statusIndicator"></div>
+                <span id="statusText">Offline (Mesh)</span>
+                <button class="mode-toggle" id="modeToggle">Go Online</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar: District List -->
+            <div class="sidebar">
+                <h2>📍 Available Districts</h2>
+                <div class="district-list" id="districtList"></div>
+            </div>
+
+            <!-- Feed Container -->
+            <div>
+                <div class="feed-container">
+                    <div class="feed-header">
+                        <h2 id="feedTitle">Select a District</h2>
+                        <div class="mesh-nodes" id="meshNodesCount" style="display: none;">
+                            📡 Connected Nodes: <strong>0</strong>
+                        </div>
+                    </div>
+
+                    <!-- Post Form -->
+                    <div class="post-form" id="postForm" style="display: none;">
+                        <textarea id="postContent" placeholder="What's happening in your district?"></textarea>
+                        <div class="post-form-actions">
+                            <span class="offline-badge" id="offlineBadge" style="display: none;">
+                                📡 Will sync when online
+                            </span>
+                            <button class="post-btn" id="postBtn">Post</button>
+                        </div>
+                    </div>
+
+                    <!-- Posts Feed -->
+                    <div class="posts-feed" id="postsFeed">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📱</div>
+                            <p>Join a district to start connecting</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mesh Network Visualization -->
+                <div class="mesh-visualization" id="meshViz" style="display: none;">
+                    <h3>🔗 Mesh Network Topology</h3>
+                    <div class="mesh-nodes-grid" id="meshNodesGrid"></div>
+                    
+                    <h3 style="margin-top: 20px;">📋 Sync Log</h3>
+                    <div class="sync-log" id="syncLog"></div>
+                    
+                    <button class="request-online-btn" id="requestOnlineBtn">
+                        🌐 Request to Connect District to Main Network
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalHeader"></div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-actions">
+                <button class="btn-cancel" data-action="close-modal">Cancel</button>
+                <button class="btn-confirm" id="modalConfirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript removed: site is server-side only. The prototype UI above is static in this build. -->
+    <noscript>
+        <div style="background:#fff3cd;padding:12px;border-radius:6px;margin-top:12px;">
+            This prototype previously used client-side JavaScript for interactive demo features. JavaScript has been removed; interactive functionality is provided server-side where applicable.
+        </div>
+    </noscript>
+
+    <!-- (Interactive prototype scripts removed to comply with "no-JS" deployment) -->
+                
+                if (isJoined) {
+                    div.addEventListener('click', () => selectDistrict(district.id));
+                }
+                
+                container.appendChild(div);
+            });
+        }
+
+        // Join District
+        function joinDistrict(districtId) {
+            const district = state.districts.find(d => d.id === districtId);
+            
+            showModal(
+                `Join ${district.name}?`,
+                `You'll be able to communicate with ${district.members} members in this district, even offline using mesh networking.`,
+                () => {
+                    state.myDistricts.push(districtId);
+                    district.members++;
+                    
+                    // Simulate mesh connection
+                    if (!state.isOnline) {
+                        simulateMeshNodes(district);
+                    }
+                    
+                    addSyncLog(`Joined district: ${district.name}`, 'success');
+                    renderDistricts();
+                    selectDistrict(districtId);
+                    closeModal();
+                }
+            );
+        }
+
+        // Select District
+        function selectDistrict(districtId) {
+            state.currentDistrict = districtId;
+            const district = state.districts.find(d => d.id === districtId);
+            
+            document.getElementById('feedTitle').textContent = `📰 ${district.name} Feed`;
+            document.getElementById('postForm').style.display = 'block';
+            document.getElementById('meshViz').style.display = 'block';
+            document.getElementById('meshNodesCount').style.display = 'block';
+            
+            // Generate some sample posts
+            if (state.posts.filter(p => p.districtId === districtId).length === 0) {
+                generateSamplePosts(districtId);
+            }
+            
+            if (!state.isOnline) {
+                simulateMeshNodes(district);
+            }
+            
+            renderPosts();
+            renderDistricts();
+            updateMeshVisualization();
+        }
+
+        // Create Post
+        function createPost() {
+            const content = document.getElementById('postContent').value.trim();
+            if (!content || !state.currentDistrict) return;
+            
+            const post = {
+                id: Date.now(),
+                districtId: state.currentDistrict,
+                username: 'You',
+                content: content,
+                timestamp: new Date(),
+                likes: 0,
+                comments: 0,
+                isLocal: true,
+                isSynced: state.isOnline,
+                source: state.isOnline ? 'online' : 'mesh'
+            };
+            
+            state.posts.unshift(post);
+            document.getElementById('postContent').value = '';
+            
+            if (!state.isOnline) {
+                state.syncQueue.push(post);
+                addSyncLog(`Post created offline (queued for sync)`, 'success');
+                
+                // Simulate mesh propagation
+                setTimeout(() => {
+                    addSyncLog(`Post propagated to ${state.meshNodes.length} nearby nodes`, 'success');
+                }, 500);
+            } else {
+                addSyncLog(`Post published online`, 'success');
+            }
+            
+            renderPosts();
+        }
+
+        // Render Posts
+        function renderPosts() {
+            const container = document.getElementById('postsFeed');
+            const districtPosts = state.posts.filter(p => p.districtId === state.currentDistrict);
+            
+            if (districtPosts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <p>No posts yet. Be the first to post!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            districtPosts.forEach(post => {
+                const div = document.createElement('div');
+                div.className = `post-card ${post.source === 'mesh' ? 'mesh-origin' : ''} ${post.isSynced ? 'synced' : ''}`;
+                
+                const badge = post.isSynced 
+                    ? '<span class="post-badge badge-synced">✓ Synced</span>'
+                    : post.isLocal 
+                        ? '<span class="post-badge badge-local">📱 Local</span>'
+                        : '<span class="post-badge badge-mesh">📡 Mesh</span>';
+                
+                div.innerHTML = `
+                    <div class="post-header">
+                        <div class="post-user">
+                            <div class="user-avatar">${post.username[0]}</div>
+                            <div class="user-info">
+                                <div class="username">${post.username}</div>
+                                <div class="post-time">${formatTime(post.timestamp)}</div>
+                            </div>
+                        </div>
+                        ${badge}
+                    </div>
+                    <div class="post-content">${post.content}</div>
+                    <div class="post-actions">
+                        <button class="action-btn" data-action="like-post" data-id="${post.id}">
+                            ❤️ ${post.likes}
+                        </button>
+                        <button class="action-btn">
+                            💬 ${post.comments}
+                        </button>
+                        <button class="action-btn">
+                            🔄 Share
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+
+        // Like Post
+        function likePost(postId) {
+            const post = state.posts.find(p => p.id === postId);
+            if (post) {
+                post.likes++;
+                if (!state.isOnline) {
+                    addSyncLog(`Like action queued for sync`, 'success');
+                }
+                renderPosts();
+            }
+        }
+
+        // Toggle Online Mode
+        function toggleOnlineMode() {
+            state.isOnline = !state.isOnline;
+            
+            if (state.isOnline) {
+                // Going online - sync queued items
+                addSyncLog(`Connecting to main network...`, 'success');
+                
+                setTimeout(() => {
+                    const queuedCount = state.syncQueue.length;
+                    state.syncQueue.forEach(item => {
+                        item.isSynced = true;
+                    });
+                    state.syncQueue = [];
+                    
+                    addSyncLog(`Synced ${queuedCount} items to server`, 'success');
+                    renderPosts();
+                }, 1000);
+            } else {
+                // Going offline - activate mesh
+                addSyncLog(`Switched to mesh networking mode`, 'success');
+                if (state.currentDistrict) {
+                    const district = state.districts.find(d => d.id === state.currentDistrict);
+                    simulateMeshNodes(district);
+                }
+            }
+            
+            updateConnectionStatus();
+        }
+
+        // Update Connection Status
+        function updateConnectionStatus() {
+            const indicator = document.getElementById('statusIndicator');
+            const text = document.getElementById('statusText');
+            const toggle = document.getElementById('modeToggle');
+            const offlineBadge = document.getElementById('offlineBadge');
+            
+            if (state.isOnline) {
+                indicator.className = 'status-indicator online';
+                text.textContent = 'Online';
+                toggle.textContent = 'Go Offline';
+                offlineBadge.style.display = 'none';
+            } else {
+                indicator.className = 'status-indicator mesh';
+                text.textContent = `Offline (Mesh: ${state.meshNodes.length} nodes)`;
+                toggle.textContent = 'Go Online';
+                offlineBadge.style.display = state.currentDistrict ? 'block' : 'none';
+            }
+        }
+
+        // Simulate Mesh Nodes
+        function simulateMeshNodes(district) {
+            const nodeCount = Math.floor(Math.random() * 5) + 3;
+            state.meshNodes = [];
+            
+            for (let i = 0; i < nodeCount; i++) {
+                state.meshNodes.push({
+                    id: i + 1,
+                    name: usernames[i % usernames.length],
+                    distance: (Math.random() * 80 + 20).toFixed(0),
+                    connected: Math.random() > 0.2
+                });
+            }
+            
+            updateMeshVisualization();
+            updateConnectionStatus();
+            
+            document.getElementById('meshNodesCount').innerHTML = `
+                📡 Connected Nodes: <strong>${state.meshNodes.filter(n => n.connected).length}</strong>
+            `;
+        }
+
+        // Update Mesh Visualization
+        function updateMeshVisualization() {
+            const container = document.getElementById('meshNodesGrid');
+            container.innerHTML = '';
+            
+            state.meshNodes.forEach(node => {
+                const div = document.createElement('div');
+                div.className = `mesh-node ${!node.connected ? 'disconnected' : ''}`;
+                div.innerHTML = `
+                    <div class="node-icon">📱</div>
+                    <div class="node-name">${node.name}</div>
+                    <div class="node-distance">~${node.distance}m away</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Generate Sample Posts
+        function generateSamplePosts(districtId) {
+            const sampleContents = [
+                "Just joined this district! Excited to connect with everyone 🎉",
+                "Anyone know what's happening at the community center today?",
+                "Local coffee shop has amazing deals this week ☕",
+                "Looking for study partners for the upcoming exam",
+                "Great to see everyone at the meetup yesterday!",
+                "Does anyone have recommendations for good restaurants nearby?",
+                "The mesh network is working perfectly even without internet! 📡"
+            ];
+            
+            for (let i = 0; i < 3; i++) {
+                state.posts.push({
+                    id: Date.now() + i,
+                    districtId: districtId,
+                    username: usernames[i % usernames.length],
+                    content: sampleContents[i % sampleContents.length],
+                    timestamp: new Date(Date.now() - (i * 3600000)),
+                    likes: Math.floor(Math.random() * 20),
+                    comments: Math.floor(Math.random() * 10),
+                    isLocal: false,
+                    isSynced: state.isOnline,
+                    source: state.isOnline ? 'online' : 'mesh'
+                });
+            }
+        }
+
+        // Request Online Access
+        function requestOnlineAccess() {
+            const district = state.districts.find(d => d.id === state.currentDistrict);
+            
+            showModal(
+                'Request Online Access',
+                `Request to connect ${district.name} to the main network? This requires admin approval.`,
+                () => {
+                    addSyncLog(`Online access requested for ${district.name}`, 'success');
+                    setTimeout(() => {
+                        addSyncLog(`Request submitted to platform admins (Status: Pending)`, 'success');
+                    }, 500);
+                    closeModal();
+                    
+                    // Simulate approval after 3 seconds
+                    setTimeout(() => {
+                        addSyncLog(`✓ Request APPROVED! District is now connected to main network`, 'success');
+                        state.isOnline = true;
+                        updateConnectionStatus();
+                    }, 3000);
+                }
+            );
+        }
+
+        // Add Sync Log
+        function addSyncLog(message, type = 'info') {
+            const log = document.getElementById('syncLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.insertBefore(entry, log.firstChild);
+            
+            // Keep only last 20 entries
+            while (log.children.length > 20) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        // Modal Functions
+        function showModal(header, body, onConfirm) {
+            document.getElementById('modalHeader').textContent = header;
+            document.getElementById('modalBody').textContent = body;
+            document.getElementById('modalConfirm').onclick = onConfirm;
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        // Utility Functions
+        function formatTime(date) {
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            if (hours < 24) return `${hours}h ago`;
+            return date.toLocaleDateString();
+        }
+
+        // Initialize app
+        init();
+        
+        // Auto-generate mesh activity
+        setInterval(() => {
+            if (!state.isOnline && state.currentDistrict && Math.random() > 0.7) {
+                const activities = [
+                    'New node discovered in range',
+                    'Message propagated through mesh',
+                    'Connection quality: Excellent',
+                    'Mesh topology updated'
+                ];
+                addSyncLog(activities[Math.floor(Math.random() * activities.length)], 'success');
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

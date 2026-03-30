@@ -1,0 +1,233 @@
+    # Redirect legacy /profil/password_change.php to clean URL
+    RewriteRule ^profil/password_change\.php$ /profil/sifre-degistir [R=301,L]
+# ========================================
+# .htaccess — mevzuatraporu.com
+# Clean URL routing, security headers, file access control
+# Consolidated 2026-03-06 (was 370 lines, now ~100)
+# ========================================
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # ── Prevent directory listing ────────────────────────
+    Options -Indexes
+
+    # ── Serve captcha directly (skip all rewrites) ──────
+    RewriteRule ^captcha_image\.php - [L]
+
+    # ── Canonical .php → Turkish URL redirects ──────────
+    RewriteCond %{THE_REQUEST} \s+/login\.php[\s?] [NC]
+    RewriteRule ^login\.php$ /giris? [R=301,L]
+
+    RewriteCond %{THE_REQUEST} \s+/register\.php[\s?] [NC]
+    RewriteCond %{QUERY_STRING} ^invite=([^&]+) [NC]
+    RewriteRule ^register\.php$ /kayit/%1? [R=301,L]
+
+    RewriteCond %{THE_REQUEST} \s+/register\.php[\s?] [NC]
+    RewriteRule ^register\.php$ /kayit? [R=301,L]
+
+    RewriteCond %{THE_REQUEST} \s+/logout\.php[\s?] [NC]
+    RewriteRule ^logout\.php$ /cikis? [R=301,L]
+
+    RewriteRule ^kayit/([^/]+)/?$ register.php?invite=$1 [L,QSA]
+    RewriteRule ^kayit$       register.php [L,QSA]
+
+    # ── SEO: legacy query-string redirects (ASCII usernames only)
+    # (profile query redirect disabled for non-ASCII usernames to avoid % encoding loops)
+
+    RewriteCond %{THE_REQUEST} \s+/post\.php\?id=([0-9]+) [NC]
+    RewriteRule ^post\.php$ /post/%1? [R=301,L]
+
+    # announcement.php?id=N → PHP handles the 301 redirect to /duyuru/slug-date
+    # (redirect is done in PHP because we need DB lookup for slug+date)
+
+    # ── Clean URL mappings (Turkish) ────────────────────
+    RewriteRule ^giris$       login.php    [L,QSA]
+    RewriteRule ^kayit$       register.php [L,QSA]
+    RewriteRule ^cikis$       logout.php   [L,QSA]
+    RewriteRule ^anasayfa$    index.php/   [L,QSA]
+    RewriteRule ^topluluklar/?$ groups.php [L,QSA]
+    RewriteRule ^etkinlikler$ events.php   [L,QSA]
+    RewriteRule ^ara$         search.php   [L,QSA]
+    # Redirect old /kurallar to new /kurallar-sartlar (friendly URL)
+    RewriteRule ^kurallar$    /kurallar-sartlar    [R=301,L]
+    RewriteRule ^kurallar-sartlar$    rules.php    [L,QSA]
+
+    # Clean URL mappings for privacy/kvkk/cookie policy
+    RewriteRule ^gizlilik$    privacy.php    [L,QSA]
+    RewriteRule ^kvkk$         kvkk.php       [L,QSA]
+    RewriteRule ^cerezler$     cookie-policy.php [L,QSA]
+
+    # Redirect legacy PHP paths to clean URLs
+    RewriteRule ^privacy\.php$        /gizlilik     [R=301,L]
+    RewriteRule ^kvkk\.php$           /kvkk         [R=301,L]
+    RewriteRule ^cookie-policy\.php$  /cerezler     [R=301,L]
+    RewriteRule ^premium$     premium.php  [L,QSA]
+    # Notifications (filters like /bildirimler/mention)
+    RewriteRule ^bildirimler(?:/.*)?$ notification.php [L,QSA]
+    RewriteRule ^davet-et$    invite.php   [L,QSA]
+    RewriteRule ^sifirla$      forgot_password.php [L,QSA]
+    RewriteRule ^sifirla/([A-Fa-f0-9]{64})$ forgot_password.php?token=$1 [L,QSA]
+
+    # ── Profile edit / password URLs
+    RewriteRule ^profil/duzenle$ profile_edit.php [L,QSA]
+    RewriteRule ^profil/sifre-degistir$ password_change.php [L,QSA]
+    RewriteRule ^sifre$ password_change.php [L,QSA]
+
+    # ── Sitemap ─────────────────────────────────────────
+    <IfModule mod_mime.c>
+        AddType application/xml .xml.gz
+        AddEncoding gzip .gz
+    </IfModule>
+    RewriteCond %{HTTP:Accept-Encoding} gzip
+    RewriteCond %{DOCUMENT_ROOT}/sitemap_cache/sitemap.xml.gz -f
+    RewriteRule ^sitemap\.xml$ /sitemap_cache/sitemap.xml.gz [L]
+    RewriteRule ^sitemap\.xml$ sitemap.php [L,QSA]
+
+    # ── RSS / Atom ──────────────────────────────────────
+    RewriteRule ^rss\.xml$  rss.php  [L,QSA]
+    RewriteRule ^atom\.xml$ atom.php [L,QSA]
+
+    # Per-user and per-group feeds
+    RewriteRule ^user/([^/]+)/rss\.xml$ user_rss.php?username=$1 [L,QSA]
+    RewriteRule ^g/([^/]+)/rss\.xml$    group_rss.php?slug=$1   [L,QSA]
+
+    # Short-form /username/rss.xml (exclude reserved folders)
+    RewriteCond %{REQUEST_URI} !^/(admin|api|assets|includes|lang|migrations|docs|templates|tests|QA)/ [NC]
+    RewriteRule ^([^/]+)/rss\.xml$ user_rss.php?username=$1 [L,QSA]
+
+    # ── Robots ──────────────────────────────────────────
+    RewriteRule ^robots\.txt$ robots.php [L,QSA]
+
+    # ── Content URL routing ─────────────────────────────
+    # Announcements: /duyuru/title-slug-YYYY-MM-DD
+    RewriteRule ^duyuru/([a-zA-Z0-9_-]+)/?$ announcement.php?slug=$1 [L,QSA]
+
+    # Posts: /post/123 and /p/123
+    RewriteRule ^post/([0-9]+)$      post.php?id=$1      [L,QSA]
+    RewriteRule ^post/([0-9]+)/edit$ edit_post.php?id=$1  [L,QSA]
+    RewriteRule ^p/([0-9]+)/?$       post.php?id=$1      [L,QSA]
+
+    # Replies: /reply/{post_id}/{parent_id}
+    RewriteRule ^reply/([0-9]+)/([0-9]+)/?$ reply.php?post_id=$1&parent_id=$2 [L,QSA]
+
+    # Groups: /g/slug and legacy /t/slug
+    RewriteRule ^g/([a-zA-Z0-9_-]+)/?$              group.php?slug=$1       [L,QSA]
+    RewriteRule ^t/([a-zA-Z0-9_-]+)/?$              group.php?slug=$1       [L,QSA]
+    RewriteRule ^g/([a-zA-Z0-9_-]+)/post/([0-9]+)/?$ group_post.php?slug=$1&id=$2 [L,QSA]
+    RewriteRule ^t/([a-zA-Z0-9_-]+)/post/([0-9]+)/?$ group_post.php?slug=$1&id=$2 [L,QSA]
+
+    # Polls and tests (Turkish: anket/tahlil)
+    RewriteRule ^anket/([a-zA-Z0-9_-]+)/([0-9]+)/?$  poll_view.php?id=$2&slug=$1 [L,QSA]
+
+    # Tahlil editor (create + edit)
+    RewriteRule ^tahlil/olustur$ test_advanced_poll.php [L,QSA]
+    RewriteRule ^tahlil/duzenle/([0-9]+)/?$ test_advanced_poll.php?edit=$1 [L,QSA]
+
+    # Redirect legacy editor query URLs to clean canonical paths
+    RewriteCond %{THE_REQUEST} \s/+test_advanced_poll\.php\?edit=([0-9]+)\s [NC]
+    RewriteRule ^test_advanced_poll\.php$ /tahlil/duzenle/%1? [R=301,L]
+    RewriteCond %{THE_REQUEST} \s/+test_advanced_poll\.php\s [NC]
+    RewriteRule ^test_advanced_poll\.php$ /tahlil/olustur? [R=301,L]
+
+    RewriteRule ^tahlil/([a-zA-Z0-9_-]+)/([0-9]+)/?$ test_view.php?id=$2&slug=$1 [L,QSA]
+
+    # Username posts: /username/123
+    RewriteRule ^([^/]+)/([0-9]+)/?$ post.php?username=$1&id=$2 [L,QSA]
+
+    # Followers / following (Turkish: kuyruktaki/kuyrukta)
+    RewriteRule ^([^/]+)/kuyruktaki$ followers.php?username=$1 [L,QSA]
+    RewriteRule ^([^/]+)/kuyrukta$   following.php?username=$1 [L,QSA]
+
+    # ── Legacy encoded username path redirect (e.g. %20, %C4%B1) ──
+    # Avoid Apache 403 for encoded spaces/unicode by normalizing to query URL.
+    RewriteCond %{THE_REQUEST} \s/([^?]*%[0-9A-Fa-f]{2}[^?]*) [NC]
+    RewriteCond %{REQUEST_URI} !^/(admin|api|assets|includes|lang|migrations|docs|templates|tests|QA)/ [NC]
+    RewriteRule ^([^/]+)$ /profile.php?username=%1 [R=302,L,NE]
+
+    # ── Username catch-all (MUST BE LAST) ───────────────
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} !^/(admin|api|assets|includes|lang|migrations|docs|templates|tests|QA)/
+    RewriteCond %{REQUEST_URI} !^/[^/]+\.(php|css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot|map)$
+    RewriteCond %{REQUEST_URI} !^/captcha_image\.php$
+    # Slug route for sanitized unicode-safe user profiles. Falls back to query if needed.
+    RewriteRule ^([a-z0-9]+(?:-[a-z0-9]+)*)$ profile.php?slug=$1 [L,QSA,NC]
+
+    RewriteCond %{REQUEST_URI} !^/[^/]+\.(php|css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot|map)$
+    RewriteCond %{REQUEST_URI} !^/captcha_image\.php$
+    RewriteRule ^(?!anasayfa$|landing$|giris$|kayit$|cikis$|logout$|topluluklar$|bildirimler$|premium$|etkinlikler$|ara$|kurallar$|davet-et$|duyuru|index\.php$)([^/]+)$ profile.php?username=$1 [L,QSA,NE]
+
+    # ── Fallback ────────────────────────────────────────
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+# ========================================
+# Security Headers
+# ========================================
+<IfModule mod_headers.c>
+    Header set Content-Security-Policy "default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; form-action 'self'; base-uri 'self'; frame-ancestors 'self'"
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "0"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+    Header set Cross-Origin-Opener-Policy "same-origin"
+    Header set Cross-Origin-Resource-Policy "same-origin"
+    Header set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
+    Header append Vary Accept-Encoding
+</IfModule>
+
+# ========================================
+# File Access Control
+# ========================================
+
+# Block direct browser loading of CSS files in assets unless referred from same site
+# (allows normal page CSS loading but prevents URL-share from showing raw contents)
+SetEnvIfNoCase Referer "^https?://([^.]+\.)?mevzuatraporu\.com/" css_allowed
+<FilesMatch "\.(css)$">
+    Require env css_allowed
+</FilesMatch>
+
+# Block JS/JSON (site operates without client-side JavaScript)
+<FilesMatch "\.(json|js)$">
+    Require all denied
+</FilesMatch>
+
+# Block sensitive file types from web access
+<FilesMatch "\.(sql|md|sh|log|bak|env|ini|xml\.gz|txt|tmp|dist)$">
+    Require all denied
+</FilesMatch>
+
+# Block dotfiles / git config / hidden sensitive names
+<FilesMatch "^(\.|\.git|\.env)">
+    Require all denied
+</FilesMatch>
+
+# Block access to non-public app directories through URL paths
+RewriteRule ^(?:logs|migrations|vendor|templates|includes)(?:/.*)?$ - [F,L]
+
+# Allow robots.txt and sitemap.xml through
+<Files "robots.txt">
+    Require all granted
+</Files>
+<Files "sitemap.xml">
+    Require all granted
+</Files>
+
+
+# Restrict health.php to localhost only
+<Files "health.php">
+    Require ip 127.0.0.1 ::1
+</Files>
+
+# ========================================
+# Environment Variables
+# ========================================
+SetEnv IAP_API_TOKEN "d5c01ec84a14915b25095f89c413108b19df6bebe259589e"
+SetEnv ADMIN_API_TOKEN "27d27a456898c010f596fe270f0c0e6386d74c9f50577fdb"
+SetEnv IAP_TEST_MODE "0"
+SetEnv APP_ENV "production"

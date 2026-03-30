@@ -1,0 +1,220 @@
+/* ========================================
+   Notification CSS - Classic Facebook Style (Purple Theme)
+   Updated: 2026-01-15 - Button Effects
+   ======================================== */
+
+/* Notification Page - No wrapper styling */
+.notification-page {
+    padding: 0;
+    border: none;
+    background: transparent;
+    margin-bottom: 0;
+}
+
+/* Notifications Header */
+.notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: #f6f7f9;
+    border-bottom: 1px solid #d3d6db;
+    margin: 0;
+}
+
+.notifications-header h1 {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    font-weight: bold;
+    color: #1c1e21;
+    background: none;
+    border: none;
+    font-family: 'Lucida Grande', Tahoma, Verdana, Arial, sans-serif;
+}
+
+/* Mark All Form - Remove extra spacing */
+.mark-all-form {
+    margin: 0;
+    padding: 0;
+}
+
+/* Mark All Read Button */
+.mark-all-btn {
+    background: linear-gradient(#43a047, #2e7d32);
+    color: #fff;
+    border: 1px solid #2e7d32;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 3px;
+    font-family: 'Lucida Grande', Tahoma, Verdana, Arial, sans-serif;
+    transition: all 0.2s ease;
+}
+
+.mark-all-btn:hover {
+    background: linear-gradient(#66bb6a, #43a047);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.mark-all-btn:active {
+    background: #2e7d32;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* Notifications List */
+.notifications-list {
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #90949c;
+    font-size: 13px;
+    background: #fff;
+}
+
+.empty-state p {
+    margin: 5px 0;
+}
+
+.hint {
+    font-size: 12px;
+    color: #90949c;
+    margin-top: 8px !important;
+}
+
+/* Individual Notification */
+.notification {
+    display: flex;
+    gap: 12px;
+    padding: 10px 15px;
+    background: #fff;
+    border-bottom: 1px solid #e5e5e5;
+    align-items: flex-start;
+    margin: 0;
+}
+
+.notification.unread {
+    background: #f3e5f5;
+}
+
+/* Notification Icon */
+.notification-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    width: 32px;
+    text-align: center;
+    line-height: 1;
+}
+
+/* Notification Content */
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-text {
+    margin: 0 0 4px 0;
+    line-height: 1.38;
+    word-wrap: break-word;
+    font-size: 13px;
+    color: #1c1e21;
+}
+
+.notification-user {
+    font-weight: bold;
+    color: #365899;
+    text-decoration: none;
+}
+
+.notification-user:hover {
+    text-decoration: underline;
+}
+
+.notification-preview {
+    color: #90949c;
+    font-style: normal;
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+}
+
+/* Notification Time */
+.notification-time {
+    margin: 4px 0 0 0;
+    font-size: 11px;
+    color: #90949c;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Unread Badge */
+.unread-badge {
+    background: #43a047;
+    color: #fff;
+    padding: 2px 6px;
+    font-size: 9px;
+    font-weight: bold;
+    border-radius: 2px;
+}
+
+/* Notification Actions */
+.notification-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+    margin: 0;
+}
+
+/* View Link */
+.notification-link {
+    color: #43a047;
+    text-decoration: none;
+    font-size: 11px;
+    padding: 0;
+    margin: 0;
+}
+
+.notification-link:hover {
+    text-decoration: underline;
+}
+
+/* Mark Read Form - Remove extra spacing */
+.mark-read-form {
+    margin: 0;
+    padding: 0;
+}
+
+/* Mark Read Button */
+.mark-read-btn {
+    background: linear-gradient(#43a047, #2e7d32);
+    border: 1px solid #2e7d32;
+    padding: 3px 8px;
+    cursor: pointer;
+    font-size: 11px;
+    color: #fff;
+    border-radius: 3px;
+    font-family: 'Lucida Grande', Tahoma, Verdana, Arial, sans-serif;
+    margin: 0;
+    transition: all 0.2s ease;
+}
+
+.mark-read-btn:hover {
+    background: linear-gradient(#66bb6a, #43a047);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.mark-read-btn:active {
+    background: #2e7d32;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+}
+

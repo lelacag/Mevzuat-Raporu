@@ -1,0 +1,242 @@
+<parameter name="content">/* ========================================
+   Post Page CSS - Web 1.0 Simple Style
+   ======================================== */
+
+.post-page {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+/* Back Link */
+.back-link {
+    display: inline-block;
+    margin-bottom: 10px;
+    color: #0000cc;
+    text-decoration: underline;
+    font-size: 12px;
+}
+
+.back-link:hover {
+    color: #ff0000;
+    text-decoration: none;
+}
+
+/* Main Post Section */
+.main-post {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #cccccc;
+}
+
+/* Reply Form Section */
+.reply-form-section {
+    padding: 10px;
+    margin: 15px 0;
+}
+
+.reply-form-section h3 {
+    margin: 0 0 10px 0;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.reply-form-section textarea {
+    width: 100%;
+    min-height: 70px;
+    padding: 5px;
+    border: 1px solid #999999;
+    resize: vertical;
+    font-family: Verdana, Arial, sans-serif;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+
+.reply-form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.reply-form-section button {
+    background: #cccccc;
+    color: #000000;
+    border: 1px solid #999999;
+    padding: 4px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: Verdana, Arial, sans-serif;
+}
+
+.reply-form-section button:hover {
+    background: #aaaaaa;
+}
+
+/* Login Prompt in Reply Section */
+.reply-form-section .login-prompt {
+    padding: 10px;
+    text-align: center;
+    background: #eeeeee;
+    border: 1px solid #cccccc;
+    margin: 0;
+    font-size: 12px;
+}
+
+/* Replies Section */
+.replies-section {
+    margin-top: 15px;
+    padding-top: 10px;
+}
+
+.replies-section h2 {
+    border: none;
+    padding: 0;
+    margin: 0 0 10px 0;
+    font-size: 12px;
+    font-weight: bold;
+    background: #eeeeee;
+    padding: 5px 10px;
+}
+
+/* No Replies State */
+.no-replies {
+    text-align: center;
+    color: #666666;
+    padding: 20px;
+    font-size: 12px;
+}
+
+/* Character Count */
+.char-count {
+    color: #666666;
+    font-size: 11px;
+}
+
+/* Errors in Reply Form */
+.reply-form-section .errors {
+    margin-bottom: 10px;
+}
+
+/* Replies List */
+.replies-list {
+    background: #ffffff;
+}
+
+/* Reply Card */
+.reply-card {
+    padding: 10px;
+    margin: 0;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.reply-card:hover {
+    background: #ffffcc;
+}
+
+.reply-card:last-child {
+    border-bottom: none;
+}
+
+.reply-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: baseline;
+    margin-bottom: 5px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.reply-author {
+    color: #0000cc;
+    font-weight: normal;
+    font-size: 12px;
+    text-decoration: underline;
+}
+
+.reply-author:hover {
+    color: #ff0000;
+    text-decoration: none;
+}
+
+.reply-time {
+    color: #999999;
+    font-size: 10px;
+}
+
+.reply-content {
+    margin-bottom: 8px;
+    line-height: 1.4;
+    font-size: 12px;
+    word-wrap: break-word;
+}
+
+.reply-actions {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .post-page {
+        padding: 8px;
+    }
+    
+    .back-link {
+        margin-bottom: 8px;
+        font-size: 11px;
+    }
+    
+    .reply-form-section {
+        padding: 8px;
+        margin: 10px 0;
+    }
+    
+    .reply-form-section textarea {
+        min-height: 60px;
+        padding: 4px;
+    }
+    
+    .reply-form-footer {
+        flex-direction: column;
+        gap: 6px;
+        align-items: flex-start;
+    }
+    
+    .reply-form-section button {
+        width: 100%;
+    }
+    
+    .replies-section {
+        margin-top: 10px;
+    }
+    
+    .replies-section h2 {
+        font-size: 11px;
+    }
+    
+    .reply-card {
+        padding: 8px;
+    }
+}
+
+@media (max-width: 400px) {
+    .post-page {
+        padding: 5px;
+    }
+    
+    .reply-form-section h3 {
+        font-size: 11px;
+    }
+    
+    .no-replies {
+        padding: 15px 10px;
+        font-size: 11px;
+    }
+    
+    .reply-content {
+        font-size: 11px;
+    }
+}
+</parameter>

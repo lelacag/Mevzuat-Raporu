@@ -1,0 +1,11 @@
+/* Main Stylesheet - Web 1.0 Style */
+
+/* Import individual CSS files */
+@import url('css/main.css');
+@import url('css/post.css');
+@import url('css/post-card.css');
+@import url('css/profile.css');
+@import url('css/auth.css');
+@import url('css/notification.css');
+@import url('css/landing.css');
+

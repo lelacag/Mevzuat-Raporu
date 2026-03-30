@@ -1,0 +1,13 @@
+
+{{site_name}} — E-posta Doğrulama
+
+Merhaba,
+
+Kayıt talebinizi doğrulamak için lütfen aşağıdaki bağlantıya tıklayın:
+
+{{verify_url}}
+
+Bu bağlantı {{expires_hours}} saat sonra geçersiz olacaktır.
+
+Teşekkürler,
+{{site_name}} Ekibi
