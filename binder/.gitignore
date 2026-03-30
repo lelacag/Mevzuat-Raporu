@@ -1,0 +1,7 @@
+# Exclude runtime and sensitive files from binder
+logs/
+sitemap_cache/
+uploads/
+.env
+*.log
+node_modules/

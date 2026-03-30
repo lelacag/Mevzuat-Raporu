@@ -1,0 +1,558 @@
+/* ========================================
+   Profile CSS - Web 1.0 Simple Style
+   ======================================== */
+
+/* Profile Header Section */
+.profile-header {
+    display: flex;
+    gap: 20px;
+    padding: 15px;
+    background: #ffffff;
+    border-bottom: 1px solid #cccccc;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+/* Profile Avatar */
+.profile-avatar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    background: #666666;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    font-weight: bold;
+    flex-shrink: 0;
+    border: 2px solid #999999;
+}
+
+/* Profile Info */
+.profile-info {
+    flex: 1;
+    min-width: 200px;
+}
+
+.profile-username {
+    margin: 0 0 8px 0;
+    font-size: 1.3em;
+    color: #000000;
+}
+
+.profile-bio {
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+    color: #333333;
+    word-wrap: break-word;
+    font-size: 12px;
+}
+
+.profile-joined {
+    margin: 0 0 10px 0;
+    color: #666666;
+    font-size: 11px;
+}
+
+/* Profile Stats */
+
+/* Ensure username and actions sit in a predictable two-column grid where the actions column takes only its intrinsic width */
+.profile-username-wrap { 
+    /* grid ensures left/right columns: username+badges on left, actions on right */
+    display: grid; 
+    grid-template-columns: minmax(0, 1fr) min-content; /* action column uses min-content so it never drops below its intrinsic size */
+    gap: 12px; 
+    padding: 12px 0 14px; 
+    border-bottom: 1px solid #eee; 
+    width: 100%; 
+    align-items: center;
+}
+
+.profile-username { 
+    margin: 0; 
+    font-size: 1.3em; 
+    display: block; 
+    line-height: 1.4;
+    min-width: 0; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap; /* username stays on single line, with ellipsis */
+} 
+.profile-stats {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.stat {
+    text-decoration: none;
+    color: #0000cc;
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.stat-value {
+    font-weight: bold;
+    font-size: 1.1em;
+    display: inline;
+    color: #000000;
+}
+
+.stat-label {
+    color: #666666;
+    font-size: 11px;
+    margin-left: 3px;
+}
+
+/* Profile Actions */
+.profile-actions {
+    width: 100%;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dotted #cccccc;
+}
+
+.profile-username-wrap { 
+    /* grid ensures left/right columns: username+badges on left, actions on right */
+    display: grid; 
+    grid-template-columns: 1fr auto;
+    gap: 12px; 
+    padding: 12px 0 14px; 
+    border-bottom: 1px solid #eee; 
+    width: 100%; 
+    align-items: center;
+}
+
+.profile-username { 
+    margin: 0; 
+    font-size: 1.3em; 
+    display: block; 
+    line-height: 1.4;
+    min-width: 0; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap; /* username stays on single line, with ellipsis */
+}
+
+/* Profile badges (compact) */
+.profile-badge {
+    display:inline-flex; align-items:center; margin-left:6px; padding:2px 8px; height:18px; line-height:18px; font-size:11px; border-radius:6px; background:#f0f0f0; color:#333; font-weight:600; }
+
+/* Custom badge (premium) — true pill, auto width, do not truncate text */
+.custom-badge {
+    display:inline-flex; align-items:center; justify-content:center; padding:6px 12px; border-radius:999px; color:#fff; font-weight:700; font-size:12px; margin-left:8px; white-space:nowrap; box-sizing:border-box;
+}
+
+
+/* Make sure action items never grow or wrap */
+.profile-action-buttons > * { flex: 0 0 auto; }
+.profile-action-buttons .inline-form { flex: 0 0 auto; }
+
+/* Keep action buttons aligned right */
+.profile-action-buttons { justify-self: end; display:flex; gap:8px; align-items:center; }
+
+/* Make forms inline so buttons appear next to each other */
+.inline-form { display: inline-flex; align-items: center; gap:6px; margin:0; width:auto; }
+.inline-form button { white-space: nowrap; }
+
+/* Ensure left column can shrink and not push actions down */
+.profile-username-wrap { grid-template-columns: minmax(0, 1fr) auto; }
+
+/* Ensure badges do not shrink and remain visible next to username */
+.profile-badge, .custom-badge { flex: 0 0 auto; }
+
+/* Custom badge color classes (used for custom-badge-{color}) */
+.custom-badge-green { background: #2ecc71; color: #fff; }
+.custom-badge-blue { background: #3498db; color: #fff; }
+.custom-badge-red { background: #e74c3c; color: #fff; }
+.custom-badge-orange { background: #f39c12; color: #fff; }
+.custom-badge-purple { background: #9b59b6; color: #fff; }
+.custom-badge-turquoise { background: #1abc9c; color: #fff; }
+.custom-badge-darkgray { background: #34495e; color: #fff; }
+.custom-badge-orangered { background: #e67e22; color: #fff; }
+
+/* Slight visual polish */
+.custom-badge-green, .custom-badge-blue, .custom-badge-red, .custom-badge-orange, .custom-badge-purple, .custom-badge-turquoise, .custom-badge-darkgray, .custom-badge-orangered { box-shadow: 0 1px 0 rgba(0,0,0,0.06); }
+
+/* Base custom badge pill style */
+.custom-badge { display:inline-flex; align-items:center; justify-content:center; padding:4px 10px; border-radius:999px; color:#fff; font-weight:700; font-size:11px; margin-left:8px; line-height:1; }
+
+.profile-action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+    margin-left: auto;
+    /* Force buttons to stay on a single line and allow horizontal scroll on narrow screens */
+    flex-wrap: nowrap !important;
+    white-space: nowrap;
+    overflow-x: auto;
+}
+
+.profile-action-buttons .inline-form {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* If buttons cannot fit, keep them on one line and allow horizontal scroll on narrow viewports */
+@media (max-width: 520px) {
+    .profile-action-buttons { flex-wrap: nowrap !important; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+/* Compact button styles */
+.btn-compact {
+    padding: 4px 10px;
+    font-size: 11px;
+    border-radius: 4px;
+    border: 1px solid #999;
+    cursor: pointer;
+    font-family: Verdana, Arial, sans-serif;
+    background: #f5f5f5;
+    color: #333;
+    font-weight: 500;
+    vertical-align: middle;
+    line-height: 1.4;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Follow button: green */
+.follow-btn-compact {
+    padding: 4px 10px;
+    font-size: 11px;
+    border-radius: 4px;
+    border: 1px solid #27ae60;
+    cursor: pointer;
+    background: #2ecc71;
+    color: #fff;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    min-width: 72px; /* ensure consistent button width */
+    justify-content: center;
+    text-align: center;
+}
+
+/* More specific: ensure follow button appears green when NOT following, even if other rules exist */
+.profile-action-buttons .follow-btn-compact:not(.following) {
+    background: #2ecc71 !important;
+    border-color: #27ae60 !important;
+    color: #ffffff !important;
+}
+
+/* Confirm following state remains visually distinct */
+.follow-btn-compact.following {
+    background: #f5f5f5 !important;
+    color: #333 !important;
+    border-color: #ccc !important;
+}
+.follow-btn-compact:hover { filter: brightness(0.95); }
+
+.follow-btn-compact:hover,
+.btn-compact:hover {
+    opacity: 0.9;
+}
+
+.follow-btn-compact.following {
+    background: #f5f5f5;
+    color: #333;
+    border-color: #ccc;
+}
+
+.btn-warning-compact {
+    background: #ff9800;
+    color: #fff;
+    border-color: #f57c00;
+}
+
+.suspended-badge-compact {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+}
+
+.profile-controls { display:flex; gap:8px; align-items:center; margin-left:auto; }
+
+/* Edit Profile Button */
+.edit-profile-btn {
+    background: #43a047;
+    color: #fff;
+    border: none;
+    padding: 3px 8px;
+    font-size: 9px;
+    text-decoration: none;
+    border-radius: 3px;
+    cursor: pointer;
+    display: inline-block;
+    font-weight: normal;
+}
+
+/* When edit button is placed under the username */
+.edit-profile-undername {
+    grid-column: 1;
+    margin-top: 6px;
+}
+
+.edit-profile-undername .edit-profile-btn {
+    padding: 4px 10px;
+    font-size: 11px;
+}
+
+/* Compact control box on the right */
+.profile-controls-box { display:flex; gap:8px; align-items:center; background:#fafafa; border:1px solid #eee; padding:6px; border-radius:8px; }
+
+/* Ensure action buttons in the box have the same size and visual weight */
+.profile-controls .btn, .profile-controls .follow-btn {
+    width:120px; /* fixed width for clean alignment */
+    padding:8px 10px;
+    text-align:center;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    box-sizing:border-box;
+    border-radius:6px;
+}
+
+.profile-actions {
+    width: 100%;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dotted #cccccc;
+}
+
+.profile-action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: nowrap; /* keep buttons on same row when space allows */
+    margin-left: auto;
+}
+
+.profile-action-buttons .inline-form {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+}
+
+.profile-actions .inline-form {
+    margin: 0;
+}
+
+.profile-actions .btn, .profile-actions .follow-btn, .profile-actions .btn-warning {
+    display: inline-block;
+}
+
+.suspended-badge {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+/* Responsive: if space is tight, allow controls to stack */
+@media (max-width: 720px) {
+    .profile-username-wrap { 
+        grid-template-columns: minmax(0, 1fr) min-content;
+        gap: 8px;
+    }
+    .profile-action-buttons { 
+        margin-left: 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@media (max-width: 520px) {
+    /* Keep the two-column grid but ensure the action column remains min-content and can scroll horizontally if needed */
+    .profile-username-wrap { 
+        grid-template-columns: minmax(0, 1fr) min-content;
+        gap: 8px;
+    }
+    .profile-action-buttons { 
+        justify-self: end;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Bio Form */
+.bio-form textarea {
+    width: 100%;
+    min-height: 50px;
+    padding: 5px;
+    border: 1px solid #999999;
+    resize: vertical;
+    font-family: Verdana, Arial, sans-serif;
+    font-size: 12px;
+    margin-bottom: 8px;
+    box-sizing: border-box;
+}
+
+.bio-form button {
+    background: #cccccc;
+    color: #000000;
+    border: 1px solid #999999;
+    padding: 4px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: Verdana, Arial, sans-serif;
+}
+
+/* Follow Button */
+.follow-btn {
+    background: #cccccc;
+    color: #000000;
+    border: 1px solid #999999;
+    padding: 6px 16px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: Verdana, Arial, sans-serif;
+}
+
+/* Profile Posts Section */
+.profile-posts {
+    margin-top: 10px;
+}
+
+.profile-posts h2 {
+    border: none;
+    padding: 0 0 10px 0;
+    margin-bottom: 10px;
+    font-size: 12px;
+    background: #eeeeee;
+    padding: 5px 10px;
+}
+
+/* Empty State */
+.no-posts {
+    text-align: center;
+    color: #666666;
+    padding: 20px;
+    font-size: 12px;
+}
+
+/* ========================================
+   Users List (Followers/Following) Styles
+   ======================================== */
+
+/* Back Link */
+.back-link {
+    display: inline-block;
+    margin: 10px 0;
+    color: #0000cc;
+    text-decoration: underline;
+    font-size: 12px;
+}
+
+/* Users List Section */
+.users-list-section {
+    padding: 10px;
+}
+
+.users-list-section h2 {
+    border: none;
+    padding: 0 0 10px 0;
+    margin-bottom: 10px;
+    font-size: 12px;
+    background: #eeeeee;
+    padding: 5px 10px;
+}
+
+/* Users List */
+.users-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* User Item */
+.user-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.user-item:last-child {
+    border-bottom: none;
+}
+
+/* User Avatar */
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background: #666666;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1em;
+    font-weight: bold;
+    flex-shrink: 0;
+    border: 1px solid #999999;
+}
+
+/* User Info */
+.user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-username {
+    display: block;
+    color: #0000cc;
+    text-decoration: underline;
+    font-weight: normal;
+    font-size: 12px;
+    margin-bottom: 3px;
+}
+
+.user-bio {
+    margin: 0 0 3px 0;
+    color: #333333;
+    font-size: 11px;
+    line-height: 1.3;
+    word-wrap: break-word;
+}
+
+.user-joined {
+    margin: 0;
+    color: #999999;
+    font-size: 10px;
+}
+
+/* User Actions */
+.user-actions {
+    flex-shrink: 0;
+}
+
+.user-actions .follow-btn {
+    padding: 4px 12px;
+    font-size: 11px;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    color: #666666;
+    padding: 20px;
+    font-size: 12px;
+    border-bottom: 1px solid #cccccc;
+}
+

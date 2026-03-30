@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- User-provided compact logo (green #5a9a3c) -->
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="1 0 46 38" width="46" height="38">
+  <style>
+    .a{fill:#5a9a3c;stroke:#5a9a3c;stroke-miterlimit:10}
+    .b{fill:#fff;stroke:#5a9a3c;stroke-miterlimit:10}
+  </style>
+  <path fill-rule="evenodd" class="a" d="m35 6.1v2.8h-28v-2.8z"/>
+  <path fill-rule="evenodd" class="a" d="m33 9v3h-24v-3z"/>
+  <path fill-rule="evenodd" class="a" d="m31 12v21h-20v-21z"/>
+  <path fill-rule="evenodd" class="b" d="m25 14v17h-8v-17z"/>
+</svg>

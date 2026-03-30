@@ -1,0 +1,115 @@
+<parameter name="content"><?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+require_once __DIR__ . '/includes/header.php';
+
+$user_id = get_current_user_id();
+$errors = [];
+
+// Get post ID from URL
+$post_id = $_GET['id'] ?? 0;
+
+// Handle new reply
+if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create_reply') {
+    $content = $_POST['content'] ?? '';
+    
+    if (empty($content)) {
+        $errors[] = 'Yanit ici bos olamaz.';
+    } elseif (strlen($content) > MAX_POST_LENGTH) {
+        $errors[] = 'Yanit ' . MAX_POST_LENGTH . ' karakterden uzun olamaz.';
+    } elseif (!filter_bad_words($content)) {
+        $errors[] = 'Yanit uygunsuz icerik iceriyor.';
+    } else {
+        if (create_post($user_id, $content, $post_id)) {
+            // Refresh page
+            header('Location: post.php?id=' . $post_id);
+            exit;
+        } else {
+            $errors[] = 'Yanit olusturulamadi.';
+        }
+    }
+}
+
+// Handle like/unlike
+if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'toggle_like') {
+    $like_post_id = $_POST['post_id'] ?? 0;
+    if ($like_post_id) {
+        toggle_like($user_id, $like_post_id);
+    }
+    // Refresh page
+    header('Location: post.php?id=' . ($like_post_id ?: $post_id));
+    exit;
+}
+
+// Get the main post
+$post = get_post($post_id);
+
+if (!$post) {
+    echo '<h1>Gonderi Bulunamadi</h1>';
+    echo '<p>Aradiginiz gonderi mevcut degil veya silinmis.</p>';
+    require_once __DIR__ . '/includes/footer.php';
+    exit;
+}
+
+$is_liked = $user_id ? is_liked($user_id, $post_id) : false;
+$replies = get_replies($post_id);
+?>
+
+<div class="main-container">
+    <div class="content-wrapper">
+        <!-- Main Post -->
+        <section class="main-post">
+            <a href="index.php" class="back-link">< Ana Sayfaya Dön</a>
+            
+            <?php require __DIR__ . '/templates/post-card.php'; ?>
+        </section>
+        
+        <!-- Reply Form -->
+        <?php if ($user_id): ?>
+            <section class="reply-form-section">
+                <h3>Yanit Ver</h3>
+                
+                <?php if (!empty($errors)): ?>
+                    <ul class="errors">
+                        <?php foreach ($errors as $error): ?>
+                            <li><?= htmlspecialchars($error) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+                
+                <form method="POST">
+                    <input type="hidden" name="action" value="create_reply">
+                    <textarea name="content" placeholder="Yanitinizi yaz..." maxlength="<?= MAX_POST_LENGTH ?>" required><?= sanitize_input($_POST['content'] ?? '') ?></textarea>
+                    <div class="reply-form-footer">
+                        <span class="char-count"><span id="char-count"><?= strlen($_POST['content'] ?? '') ?></span>/<?= MAX_POST_LENGTH ?></span>
+                        <button type="submit">Yanitla</button>
+                    </div>
+                </form>
+            </section>
+        <?php else: ?>
+            <section class="login-prompt">
+                <p>Yanit vermek icin <a href="login.php">giris yapin</a>.</p>
+            </section>
+        <?php endif; ?>
+        
+        <!-- Replies -->
+        <section class="replies-section">
+            <h2 class="section-title">Yanitlar (<?= count($replies) ?>)</h2>
+            
+            <?php if (empty($replies)): ?>
+                <div class="empty-state">
+                    <p>Henuz yanit yok. Ilk yaniti sen ver!</p>
+                </div>
+            <?php else: ?>
+                <div class="replies-list">
+                    <?php foreach ($replies as $reply): ?>
+                        <?php require __DIR__ . '/templates/reply-card.php'; ?>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </section>
+    </div>
+
+<?php require_once __DIR__ . '/includes/footer.php'; ?>
+</parameter>
