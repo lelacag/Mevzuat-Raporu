@@ -63,6 +63,7 @@ if (mb_strlen($parent_content) > 300) {
             <form method="POST" action="<?= $post_action ?>" class="post-form">
                 <input type="hidden" name="action" value="create_reply">
                 <input type="hidden" name="parent_id" value="<?= $parent_id ?>">
+                <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
                 <?php if (!empty($_REQUEST['sid'])): ?>
                     <input type="hidden" name="sid" value="<?= htmlspecialchars($_REQUEST['sid']) ?>">
                 <?php endif; ?>

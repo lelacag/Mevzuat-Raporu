@@ -196,7 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['login_submit'])) {
             <!-- Posts Section -->
             <div class="content-item posts-section">
                 <div class="help-heading">
-                    <h2><?= SITE_NAME ?> rahat bir sosyal medya platformudur. Gereksiz gürültü içermez, kişisel bilgilerinizi çarçur etmez ve üçüncü, dördüncü kişilere
+                    <h2><?= SITE_NAME ?> rahat bir sosyal medya platformudur. Gürültü içermez, kişisel bilgilerinizi çöp etmez ve üçüncü, dördüncü kişilere
          satmaz. Yerli malı, yurdun malı herkes onu kullanmalı anlayışıyla başlamıştır. Hoş geldiniz!</h2>
                 </div>
                 <div class="posts-feed">

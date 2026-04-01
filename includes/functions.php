@@ -4579,7 +4579,7 @@ function record_test_attempt($user_id, $test_id, $answers_by_question_id, $notif
 
         // Notifications: to taker
         try {
-            $notif_text = "Test sonucu: '" . addslashes((string)$result_out) . "' — Toplam puan: " . intval($sum);
+            $notif_text = "Test sonucu: '" . htmlspecialchars((string)$result_out, ENT_QUOTES, 'UTF-8') . "' — Toplam puan: " . intval($sum);
             query("INSERT INTO notifications (user_id, type, text, from_user_id, created_at) VALUES (?, 'system', ?, ?, NOW())", [$user_id, $notif_text, null]);
         } catch (Exception $e) {
             error_log('record_test_attempt notify taker error: ' . $e->getMessage());
@@ -4595,7 +4595,7 @@ function record_test_attempt($user_id, $test_id, $answers_by_question_id, $notif
                     $author_id = (int)$t['user_id'];
                     // Don't notify the author if they are the taker
                     if ($author_id !== (int)$user_id) {
-                        $author_text = "Bir kullanıcı '" . addslashes($t['title'] ?? 'test') . "' testini tamamladı. Sonuç: " . addslashes($result_out) . " (Puan: " . intval($sum) . ")";
+                        $author_text = "Bir kullanıcı '" . htmlspecialchars($t['title'] ?? 'test', ENT_QUOTES, 'UTF-8') . "' testini tamamladı. Sonuç: " . htmlspecialchars((string)$result_out, ENT_QUOTES, 'UTF-8') . " (Puan: " . intval($sum) . ")";
                         query("INSERT INTO notifications (user_id, type, text, from_user_id, created_at) VALUES (?, 'system', ?, ?, NOW())", [$author_id, $author_text, $user_id]);
                     }
                 }
