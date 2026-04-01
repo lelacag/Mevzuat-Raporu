@@ -113,9 +113,12 @@
     RewriteRule ^reply/([0-9]+)/([0-9]+)/?$ reply.php?post_id=$1&parent_id=$2 [L,QSA]
 
     # Groups: /g/slug and legacy /t/slug
-    RewriteRule ^g/([a-zA-Z0-9_-]+)/?$              group.php?slug=$1       [L,QSA]
-    RewriteRule ^t/([a-zA-Z0-9_-]+)/?$              group.php?slug=$1       [L,QSA]
-    RewriteRule ^g/([a-zA-Z0-9_-]+)/post/([0-9]+)/?$ group_post.php?slug=$1&id=$2 [L,QSA]
+    # Allows any (URL-decoded) slug segment, including non-ASCII (converted by app code)
+    RewriteRule ^g/([^/]+)/?$              group.php?slug=$1       [L,QSA]
+    RewriteRule ^t/([^/]+)/?$              group.php?slug=$1       [L,QSA]
+    RewriteRule ^g/([^/]+)/uyeler/?$       group_members.php?slug=$1 [L,QSA]
+    RewriteRule ^t/([^/]+)/uyeler/?$       group_members.php?slug=$1 [L,QSA]
+    RewriteRule ^g/([^/]+)/post/([0-9]+)/?$ group_post.php?slug=$1&id=$2 [L,QSA]
     RewriteRule ^t/([a-zA-Z0-9_-]+)/post/([0-9]+)/?$ group_post.php?slug=$1&id=$2 [L,QSA]
 
     # Polls and tests (Turkish: anket/tahlil)

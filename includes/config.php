@@ -1,6 +1,27 @@
 <?php /* EN + TR comments used. */
+// Load .env file (optional) to allow CLI/web environments to pick up local settings.
+$dotenvPath = __DIR__ . '/../.env';
+if (is_readable($dotenvPath)) {
+    foreach (file($dotenvPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+        if (preg_match('/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/', $line, $m)) {
+            $key = $m[1];
+            $value = trim($m[2]);
+            // strip optional quotes
+            if ((substr($value,0,1)==='"' && substr($value,-1)==='"') || (substr($value,0,1)==="'" && substr($value,-1)==="'")) {
+                $value = substr($value, 1, -1);
+            }
+            putenv("$key=$value");
+            $_ENV[$key] = $value;
+            $_SERVER[$key] = $value;
+        }
+    }
+}
+
 // Environment detection (set to 'production' on live server)
-// environment is controlled via APP_ENV; default to production for safety if not set
+// environment is controlled via APP_ENV; default to development for safety if not set
 // For local development we prefer non-secure cookies and more verbose errors
 // set ENVIRONMENT to 'development' manually or via the APP_ENV environment variable.
 define('ENVIRONMENT', getenv('APP_ENV') ?: 'development');

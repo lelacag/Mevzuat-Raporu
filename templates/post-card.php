@@ -141,7 +141,7 @@
                 $direct_link = htmlspecialchars(BASE_PATH . '/anket/' . rawurlencode($p_slug) . '/' . (int)$p['id'], ENT_QUOTES, 'UTF-8');
             }
         ?>
-        <a href="<?= $direct_link ?>" class="post-card-icon">#<?= $post['id'] ?></a>
+        <a href="<?= $direct_link ?>" class="post-card-icon">#P<?= $post['id'] ?></a>
     </div>
     
     <?php if (isset($post['comments']) && !empty($post['comments'])): ?>

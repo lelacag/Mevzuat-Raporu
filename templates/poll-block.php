@@ -9,8 +9,11 @@ foreach ($poll['options'] as $o) { $total_votes += (int)$o['votes_count']; }
         $title = trim($poll['title'] ?? '');
         // raw post content may serve as description/question inside the box
         $post_raw = '';
-        if (isset($post) && !empty($post['content'])) $post_raw = $post['content'];
-        if (isset($gp) && !empty($gp['content'])) $post_raw = $gp['content'];
+        if (isset($post) && !empty($post['content'])) {
+            $post_raw = $post['content'];
+        }
+        // For group posts, we intentionally do not inject $gp['content'] here
+        // to avoid duplicating group post text inside poll post block.
         $post_text = trim(strip_tags($post_raw));
         // Determine whether to show title: if post content starts with title (we used Açıklama as title) hide it to avoid duplication
         $show_title = true;
@@ -63,6 +66,7 @@ foreach ($poll['options'] as $o) { $total_votes += (int)$o['votes_count']; }
             <form method="POST" action="<?= BASE_PATH ?>/api/poll_vote.php" style="display:inline; margin:0;">
                 <input type="hidden" name="poll_id" value="<?= (int)$poll['id'] ?>">
                 <input type="hidden" name="referer" value="<?= htmlspecialchars($_SERVER['REQUEST_URI']) ?>">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? generate_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" name="option_id" value="0">
                 <input type="hidden" name="remove" value="1">
                 <button type="submit" class="btn-small">Oyumu Geri Al</button>
@@ -80,6 +84,7 @@ foreach ($poll['options'] as $o) { $total_votes += (int)$o['votes_count']; }
             <form method="POST" action="<?= BASE_PATH ?>/api/poll_vote.php" class="test-form poll-form" style="margin-top:8px;">
                 <input type="hidden" name="poll_id" value="<?= (int)$poll['id'] ?>">
                 <input type="hidden" name="referer" value="<?= htmlspecialchars($_SERVER['REQUEST_URI']) ?>">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? generate_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                 <?php foreach ($poll['options'] as $opt): ?>
                     <div class="test-option poll-option">
                         <label>

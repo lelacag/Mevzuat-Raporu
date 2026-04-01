@@ -1718,7 +1718,10 @@ function insert_tag_into_text($draft, $tag_text) {
  */
 function insert_type_or_append_to_draft($user_id, $insert_type, $fields = []) {
     if (!$user_id) return false;
-    $draft = get_draft($user_id);
+
+    // Prefer current user content from the submitted form so we don't discard what
+    // the user has typed when they click an insert helper button.
+    $draft = isset($fields['content']) ? trim($fields['content']) : get_draft($user_id);
 
     if ($insert_type === 'spoiler') {
         $label = 'Ekstra';
@@ -3839,15 +3842,29 @@ function get_user_group_posts($user_id, $limit = 50, $viewer_id = null) {
 // SEO-friendly URL generators
 function group_url($slug) {
     // Prefer /g/ as the canonical group prefix, keep /t/ for legacy compatibility
-    $slug = urlencode($slug);
+    // Normalize slug to ASCII-friendly version in clean URL mode for unicode names.
+    $normalized = preg_replace('/[^a-z0-9_-]+/i', '-', trim(strtolower($slug)));
+    $normalized = trim($normalized, '-');
+    $slug_for_url = USE_CLEAN_URLS ? urlencode($normalized) : urlencode($slug);
+
     if (USE_CLEAN_URLS) {
-        return BASE_PATH . '/g/' . $slug;
+        return BASE_PATH . '/g/' . $slug_for_url;
     }
-    return BASE_PATH . '/group.php?slug=' . $slug;
+    return BASE_PATH . '/group.php?slug=' . $slug_for_url;
 }
 
 function group_post_url($slug, $post_id) {
     return BASE_PATH . '/g/' . urlencode($slug) . '/post/' . (int)$post_id;
+}
+
+function group_members_url($slug) {
+    // Keep group URL canonicalized the same as group_url.
+    $normalized = preg_replace('/[^a-z0-9_-]+/i', '-', trim(strtolower($slug)));
+    $normalized = trim($normalized, '-');
+    if (USE_CLEAN_URLS) {
+        return BASE_PATH . '/g/' . urlencode($normalized) . '/uyeler';
+    }
+    return BASE_PATH . '/group_members.php?slug=' . urlencode($slug);
 }
 
 function announcement_url($slug, $id, $created_at = null) {

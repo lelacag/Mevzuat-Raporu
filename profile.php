@@ -201,7 +201,7 @@ if ($current_user_id && $_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Preview request
-    if (isset($_POST['preview'])) {
+    if (isset($_POST['action']) && $_POST['action'] === 'preview') {
         $preview_content = $_POST['content'] ?? get_draft($current_user_id);
         if (trim($preview_content) === '') {
             $preview_error = 'Önizlemek için içerik gerekli.';
@@ -471,7 +471,6 @@ $badges = get_user_badges($profile_user_id);
                         <!-- insert-helpers removed: helper mini-forms were intentionally removed to simplify composer UI -->
 
                         <form method="POST" class="post-form" id="composer-form">
-                            <input type="hidden" name="action" value="create_post">
                             <div class="post-toolbar" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
                                 <div style="display:flex;gap:6px;">
                                     <button type="submit" name="insert_type" value="tag" class="btn-small">#</button>
@@ -504,8 +503,8 @@ $badges = get_user_badges($profile_user_id);
                                     <span class="char-count">En fazla <?= MAX_POST_LENGTH ?> karakter</span>
                                 <?php endif; ?>
                                 <div class="post-actions-buttons">
-                                    <button type="submit" name="preview" value="1" class="btn-outline" <?php if (trim((string)($_POST['content'] ?? get_draft($current_user_id))) === '') echo 'disabled'; ?>>Önizleme</button>
-                                    <button type="submit" class="btn-post">Paylaş</button>
+                                    <button type="submit" name="action" value="preview" class="btn-outline">Önizleme</button>
+                                    <button type="submit" name="action" value="create_post" class="btn-post">Paylaş</button>
                                 </div>
                             </div>
                         </form>

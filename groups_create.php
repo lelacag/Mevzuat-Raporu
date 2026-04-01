@@ -38,10 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'Grup açıklaması en fazla 500 karakter olabilir';
         }
         
-        // Generate slug
-        $slug = preg_replace('/[^a-z0-9]+/i', '-', strtolower($name));
-        $slug = trim($slug, '-');
-        
+        // Generate slug using the shared slug helper so Unicode chars are transliterated
+        $slug = generate_slug($name);
+
         // Check if slug already exists
         if (empty($errors)) {
             $stmt = query("SELECT id FROM groups_table WHERE slug = ?", [$slug]);

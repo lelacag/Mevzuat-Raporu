@@ -172,7 +172,7 @@ if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['insert_t
 
 // Handle preview (buttonized)
 $skip_create = false;
-if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['preview'])) {
+if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'preview') {
     $preview_content = $_POST['content'] ?? get_draft($user_id);
     if (trim($preview_content) === '') {
         $preview_error = 'Önizlemek için içerik gerekli.';
@@ -547,7 +547,6 @@ if ($user_id) {
             <?php endif; ?>
 
             <form method="POST" class="post-form" id="composer-form">
-                <input type="hidden" name="action" value="create_post">
                 <div class="post-toolbar">
                     <div class="toolbar-actions">
                         <button type="submit" name="insert_type" value="tag" class="btn-small">#</button>
@@ -579,8 +578,8 @@ if ($user_id) {
                     <?php endif; ?>
                     <!-- Swapped buttons: Preview first, then Publish (grouped closely) -->
                     <div class="post-actions-buttons">
-                        <button type="submit" name="preview" value="1" class="btn-outline" <?php if ($current_draft === '') echo 'disabled'; ?>>Önizleme</button>
-                        <button type="submit" class="btn-post">Paylaş</button>
+                        <button type="submit" name="action" value="preview" class="btn-outline">Önizleme</button>
+                        <button type="submit" name="action" value="create_post" class="btn-post">Paylaş</button>
                     </div>
                 </div>
             </form>
@@ -639,6 +638,21 @@ if ($user_id) {
             } catch (Exception $e) {
                 // ignore feed injection errors
             }
+
+            // De-duplicate timeline rows by source type + ID to avoid repeated entries from duplicate insertion routes
+            $seen_feed = [];
+            $unique_feed = [];
+            foreach ($combined_feed as $item) {
+                $id = isset($item['data']['id']) ? $item['data']['id'] : 0;
+                $key = $item['type'] . '_' . $id;
+                if (isset($seen_feed[$key])) {
+                    continue;
+                }
+                $seen_feed[$key] = true;
+                $unique_feed[] = $item;
+            }
+            $combined_feed = $unique_feed;
+
             usort($combined_feed, function($a, $b) { return strtotime($b['created_at']) <=> strtotime($a['created_at']); });
         ?>
         <div class="posts-feed">
@@ -744,6 +758,7 @@ if ($user_id) {
                             </div>
                             <div class="suggestion-action">
                                 <form method="POST" action="<?= BASE_PATH ?>/api/follow.php" class="form-inline">
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generate_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                                     <input type="hidden" name="following_id" value="<?= $s['id'] ?>">
                                     <input type="hidden" name="referer" value="<?= htmlspecialchars($_SERVER['REQUEST_URI']) ?>">
                                     <button class="follow-btn-compact" type="submit">kuyruk</button>

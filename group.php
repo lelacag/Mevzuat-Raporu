@@ -12,6 +12,12 @@ if (!$slug) {
     exit;
 }
 
+if (USE_CLEAN_URLS && !empty($slug) && strpos($_SERVER['REQUEST_URI'], '/group.php') !== false) {
+    header('HTTP/1.1 301 Moved Permanently');
+    header('Location: ' . group_url($slug));
+    exit;
+}
+
 // Get group details
 $stmt = $pdo->prepare("
     SELECT g.*, u.username as creator_name
@@ -23,6 +29,19 @@ $stmt->execute([$slug]);
 $group = $stmt->fetch();
 
 if (!$group) {
+    // Try canonical slug fallback (normalize unicode/diacritics)
+    $canon_slug = generate_slug($slug);
+    if ($canon_slug !== $slug) {
+        $alt_stmt = $pdo->prepare("SELECT g.*, u.username as creator_name FROM groups_table g LEFT JOIN users u ON g.created_by = u.id WHERE g.slug = ?");
+        $alt_stmt->execute([$canon_slug]);
+        $alt_group = $alt_stmt->fetch();
+        if ($alt_group) {
+            header('HTTP/1.1 301 Moved Permanently');
+            header('Location: ' . group_url($canon_slug));
+            exit;
+        }
+    }
+
     header('Location: ' . BASE_PATH . '/groups.php');
     exit;
 }
@@ -192,7 +211,7 @@ if ($user_role === 'admin') {
                 <?php endforeach; ?>
             </ul>
             <?php if (count($members) > 10): ?>
-            <a href="#" class="view-all-link">tüm üyeleri gör »</a>
+            <a href="<?= group_members_url($slug) ?>" class="view-all-link">tüm üyeleri gör »</a>
             <?php endif; ?>
         </div>
     </aside>
@@ -224,7 +243,7 @@ if ($user_role === 'admin') {
                             <form method="POST" action="<?= BASE_PATH ?>/groups_leave.php">
                                 <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
                                 <input type="hidden" name="group_id" value="<?= $group['id'] ?>">
-                                <input type="hidden" name="redirect" value="<?= urlencode('group.php?slug=' . $slug) ?>">
+                                <input type="hidden" name="redirect" value="group.php?slug=<?= urlencode($slug) ?>">
                                 <button type="submit" class="btn-join-group btn-leave-group">Ayrıl</button>
                             </form>
                             <?php endif; ?>
@@ -253,7 +272,7 @@ if ($user_role === 'admin') {
                             <form method="POST" action="<?= BASE_PATH ?>/groups_join.php">
                                 <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
                                 <input type="hidden" name="group_id" value="<?= $group['id'] ?>">
-                                <input type="hidden" name="redirect" value="<?= urlencode('group.php?slug=' . $slug) ?>">
+                                <input type="hidden" name="redirect" value="group.php?slug=<?= urlencode($slug) ?>">
                                 <?php if (!empty($group['is_private'])): ?>
                                     <?php if (!empty($group['entry_question'])): ?>
                                         <div class="group-entry-question">Soru: <?= htmlspecialchars($group['entry_question']) ?></div>

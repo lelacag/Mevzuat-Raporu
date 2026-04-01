@@ -116,6 +116,7 @@ try {
                             <div class="user-actions">                                <?php if ($current_user_id && $current_user_id != $follower['id']): ?>
                                     <?php $follower_is_following = is_following($current_user_id, $follower['id']); ?>
                                     <form method="POST" action="<?= BASE_PATH ?>/api/follow.php" class="form-inline">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generate_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                                         <input type="hidden" name="following_id" value="<?= $follower['id'] ?>">
                                         <input type="hidden" name="referer" value="<?= htmlspecialchars($_SERVER['REQUEST_URI']) ?>">
                                         <button type="submit" class="follow-btn-compact <?= $follower_is_following ? 'following' : '' ?>">

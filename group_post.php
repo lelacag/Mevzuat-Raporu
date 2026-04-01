@@ -136,77 +136,12 @@ $total_comments = count_group_comments($post_id);
         <?php endif; ?>
 
         <!-- Main Post -->
-        <article class="post-card">
-            <div class="post-header">
-                <div class="post-number">#<?= $post['id'] ?></div>
-                
-                <div class="post-info">
-                    <div>
-                        <a href="<?= profile_url($post['username']) ?>" class="post-author">
-                            <?= htmlspecialchars($post['username']) ?>
-                        </a>
-                        <span class="muted small">· <?= htmlspecialchars($post['group_name']) ?></span>
-                    </div>
-                    <div class="post-time">
-                        <?= format_time($post['created_at']) ?>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="post-content">
-                <?= nl2br(linkify_mentions($post['content'])) ?>
-            </div>
-
-            <?php $post_poll = get_poll_for_group_post($post['id']); if (!empty($post_poll)): ?>
-                <?php $poll = $post_poll; require __DIR__ . '/templates/poll-block.php'; ?>
-            <?php endif; ?>
-
-            <?php $post_test = get_test_for_group_post($post['id']); if (!empty($post_test)): ?>
-                <?php $test = $post_test; require __DIR__ . '/templates/test-block.php'; ?>
-            <?php endif; ?>
-            
-            <div class="comment-actions">
-                <?php if ($user_id): ?>
-                    <!-- Like Button -->
-                    <form method="POST" action="<?= BASE_PATH ?>/api/group_post_like.php" class="action-form">
-                        <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
-                        <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
-                        <input type="hidden" name="referer" value="<?= htmlspecialchars($_SERVER['REQUEST_URI']) ?>">
-                        <button type="submit" class="action-btn like-btn <?= $user_liked ? 'liked' : '' ?>">
-                            <?= $user_liked ? '♥' : '♡' ?> <?= $like_count ?> Beğen
-                        </button>
-                    </form>
-                    
-                    <!-- Comment Count -->
-                    <span class="action-btn">💬 <?= count($comments) ?> Yorum</span>
-                    
-                    <?php if ($user_id == $post['user_id']): ?>
-                        <?php $editUrl = htmlspecialchars(BASE_PATH . '/group_post_edit.php?' . http_build_query(['id' => (int)$post['id'], 'slug' => $slug])); ?>
-                        <a href="<?= $editUrl ?>" class="action-btn edit-btn">
-                            ✏️ Düzenle
-                        </a>
-                        <a href="<?= BASE_PATH ?>/group_post_delete_confirm.php?id=<?= $post['id'] ?>&slug=<?= urlencode($slug) ?>" class="action-btn delete-btn">
-                            🗑️ Sil
-                        </a>
-                    <?php else: ?>
-                        <form method="POST" action="<?= BASE_PATH ?>/api/report.php" class="action-form">
-                            <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
-                            <input type="hidden" name="target_type" value="group_post">
-                            <input type="hidden" name="target_id" value="<?= $post['id'] ?>">
-                            <input type="hidden" name="reason" value="spam">
-                            <input type="hidden" name="referer" value="<?= htmlspecialchars($_SERVER['REQUEST_URI']) ?>">
-                            <button type="submit" class="action-btn report-btn">
-                                ⚠️ Bildir
-                            </button>
-                        </form>
-                    <?php endif; ?>
-                <?php else: ?>
-                    <a href="<?= BASE_PATH ?>/login.php" class="action-btn">♡ <?= $like_count ?> Beğen</a>
-                    <span class="action-btn">💬 <?= count($comments) ?> Yorum</span>
-                    <a href="<?= BASE_PATH ?>/login.php" class="action-btn">⚠️ Bildir</a>
-                <?php endif; ?>
-            </div>
-        </article>
+        <?php
+            $current_user_id = $user_id;
+            $gp = $post;
+            $show_group_post_comment_form = false; // use group_comment.php form instead
+            require __DIR__ . '/templates/group-post-card.php';
+        ?>
 
         <?php require __DIR__ . '/templates/group-comment.php'; ?>
     </main>
