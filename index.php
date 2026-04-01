@@ -133,6 +133,7 @@ $last_feed_seen_at = isset($_SESSION['last_feed_seen_at']) ? $_SESSION['last_fee
 
 
 if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['insert_type']) || isset($_POST['insert_tag']))) {
+    require_csrf();
     $insert_type = $_POST['insert_type'] ?? null;
     // Prefer current textarea content (if present), then fall back to session draft
     $draft = $_POST['content'] ?? get_draft($user_id);
@@ -173,6 +174,7 @@ if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['insert_t
 // Handle preview (buttonized)
 $skip_create = false;
 if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'preview') {
+    require_csrf();
     $preview_content = $_POST['content'] ?? get_draft($user_id);
     if (trim($preview_content) === '') {
         $preview_error = 'Önizlemek için içerik gerekli.';
@@ -187,6 +189,7 @@ if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])
 
 // Handle post creation
 if (!$skip_create && $user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create_post') {
+    require_csrf();
     $content = $_POST['content'] ?? '';
     // If no content in POST, use draft
     if (trim($content) === '') {
@@ -547,6 +550,7 @@ if ($user_id) {
             <?php endif; ?>
 
             <form method="POST" class="post-form" id="composer-form">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
                 <div class="post-toolbar">
                     <div class="toolbar-actions">
                         <button type="submit" name="insert_type" value="tag" class="btn-small">#</button>

@@ -182,6 +182,7 @@ $is_suspended = false;
 // Handle follow/unfollow and post creation
 $skip_create = false;
 if ($current_user_id && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_csrf();
     // Insert tag helper (no-JS buttons submit here)
     if (isset($_POST['insert_tag'])) {
         $draft = $_POST['content'] ?? get_draft($current_user_id);
@@ -390,6 +391,7 @@ $badges = get_user_badges($profile_user_id);
                     <div class="profile-action-buttons">
                         <?php if (!$is_own_profile && $current_user_id): ?>
                             <form method="POST" class="inline-form">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
                                 <input type="hidden" name="action" value="follow">
                                 <button type="submit" class="follow-btn-compact <?= $is_following ? 'following' : '' ?>">
                                     <?= $is_following ? 'kuyruğu bırak' : 'kuyruk' ?>
@@ -407,6 +409,7 @@ $badges = get_user_badges($profile_user_id);
                                 </form>
                             <?php else: ?>
                                 <form method="POST" action="<?= BASE_PATH ?>/api/admin_unsuspend_user.php" class="inline-form">
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
                                     <input type="hidden" name="user_id" value="<?= $profile_user_id ?>">
                                     <button type="submit" class="btn-compact">Kaldır</button>
                                 </form>
@@ -471,6 +474,7 @@ $badges = get_user_badges($profile_user_id);
                         <!-- insert-helpers removed: helper mini-forms were intentionally removed to simplify composer UI -->
 
                         <form method="POST" class="post-form" id="composer-form">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
                             <div class="post-toolbar" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
                                 <div style="display:flex;gap:6px;">
                                     <button type="submit" name="insert_type" value="tag" class="btn-small">#</button>

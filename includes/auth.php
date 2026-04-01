@@ -435,6 +435,29 @@ if (!function_exists('verify_csrf_token')) {
     }
 }
 
+/**
+ * Enforce CSRF token on the current POST request.
+ * Call at the top of every POST handler. If the token is missing or invalid,
+ * responds with HTTP 403 and exits — the caller does not need to check the return value.
+ */
+if (!function_exists('require_csrf')) {
+    function require_csrf() {
+        $token = $_POST['csrf_token'] ?? '';
+        if (verify_csrf_token($token)) {
+            return; // token valid — continue
+        }
+        // Token invalid — abort with 403
+        http_response_code(403);
+        if (!empty($_SESSION)) {
+            $_SESSION['flash'] = 'Geçersiz veya süresi dolmuş istek (CSRF). Lütfen tekrar deneyin.';
+        }
+        // Try to redirect back; if no referrer, go to index
+        $back = $_SERVER['HTTP_REFERER'] ?? (defined('BASE_PATH') ? BASE_PATH . '/index.php' : '/index.php');
+        header('Location: ' . $back);
+        exit;
+    }
+}
+
 // Rate Limiting Functions
 function check_rate_limit($action, $identifier, $max_attempts = null, $window = null) {
     $max_attempts = $max_attempts ?? MAX_LOGIN_ATTEMPTS;

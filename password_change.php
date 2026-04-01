@@ -24,6 +24,7 @@ if (!$profile_user) {
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_csrf();
     $current_password = $_POST['current_password'] ?? '';
     $new_password = $_POST['new_password'] ?? '';
     $new_password_confirm = $_POST['new_password_confirm'] ?? '';
@@ -66,6 +67,7 @@ require_once __DIR__ . '/includes/header.php';
         <?php endif; ?>
 
         <form method="POST" class="entry-form">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
             <div class="form-row">
                 <label class="form-label">Mevcut Şifre</label>
                 <input type="password" name="current_password" class="form-control input-full" required>

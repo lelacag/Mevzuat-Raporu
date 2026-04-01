@@ -9,6 +9,7 @@ $errors = [];
 if ($user_id && isset($_GET['action']) && $_GET['action'] === 'new') {
     // Redirect to index to create post or show dedicated form
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create_post') {
+        require_csrf();
         $content = $_POST['content'] ?? '';
         
         if (empty($content)) {
@@ -58,6 +59,7 @@ if ($user_id && isset($_GET['action']) && $_GET['action'] === 'new') {
             <?php endif; ?>
             
             <form method="POST" class="card-box padded">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
                 <input type="hidden" name="action" value="create_post">
                 <textarea name="content" placeholder="Ne düşünüyorsun?" required class="post-textarea" autofocus></textarea>
                 <div class="post-form-actions">
@@ -91,6 +93,7 @@ $post_id = $_GET['id'] ?? 0;
 
 // Handle new reply
 if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create_reply') {
+    require_csrf();
     $content = $_POST['content'] ?? '';
     $parent_id = isset($_POST['parent_id']) ? (int)$_POST['parent_id'] : (int)$post_id;
     if ($parent_id <= 0) {
@@ -163,6 +166,7 @@ if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])
 
 // Handle like/unlike
 if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'toggle_like') {
+    require_csrf();
     $like_post_id = $_POST['post_id'] ?? 0;
     if ($like_post_id) {
         toggle_like($user_id, $like_post_id);

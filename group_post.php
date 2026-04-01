@@ -45,6 +45,7 @@ if (!$can_view) {
 
 // Handle comment creation
 if ($user_id && $is_member && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create_comment') {
+    require_csrf();
     $content = trim($_POST['content'] ?? '');
     $parent_id = isset($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
     

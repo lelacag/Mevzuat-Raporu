@@ -21,6 +21,7 @@ $preview_badge_text = null;
 $preview_badge_color = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_csrf();
     // Regenerate event code (premium users only)
     if (isset($_POST['regenerate_event_code']) && is_user_premium($current_user_id)) {
         try {
@@ -111,6 +112,7 @@ require_once __DIR__ . '/includes/header.php';
         <?php endif; ?>
 
         <form method="POST">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
             <div class="entry-form">
                 <label class="form-label">Biyografi</label>
                 <textarea name="bio" class="textarea-large" maxlength="500" placeholder="Kendinizi tanıtın..."><?= sanitize_input($profile_user['bio'] ?? '') ?></textarea>
@@ -126,6 +128,7 @@ require_once __DIR__ . '/includes/header.php';
                                     <?= htmlspecialchars($profile_user['event_code'] ?? get_or_create_event_code($current_user_id)) ?>
                                 </div>
                                 <form method="POST" style="display:inline;">
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
                                     <button type="submit" name="regenerate_event_code" value="1" class="btn-outline small">Kodu Yenile</button>
                                 </form>
                                 <div class="hint muted small">Bu kodu etkinliklerde kullanıcı adınızla birlikte temsil edebilirsiniz. İsterseniz yenileyebilirsiniz.</div>
