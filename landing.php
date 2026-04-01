@@ -32,9 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['login_submit'])) {
     if (!isset($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token'])) {
         $errors[] = 'Geçersiz istek. Lütfen tekrar deneyin.';
     } else {
-        $username      = sanitize_input($_POST['username'] ?? '');
+        $username      = trim($_POST['username'] ?? '');
         $password      = $_POST['password'] ?? '';
-        $email         = sanitize_input($_POST['email'] ?? '');
+        $email         = trim($_POST['email'] ?? '');
         $captcha_input = $_POST['captcha'] ?? '';
         $captcha_token = $_POST['captcha_token'] ?? '';
         $identifier    = $_SERVER['REMOTE_ADDR'] ?? 'unknown';

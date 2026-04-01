@@ -52,9 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['login_submit'])) {
     } else {
 
         /* ---- Gather & sanitise inputs ---------------------------- */
-        $username      = sanitize_input($_POST['username'] ?? '');
+        $username      = trim($_POST['username'] ?? '');
         $password      = $_POST['password'] ?? '';
-        $email         = mb_strtolower(sanitize_input($_POST['email'] ?? ''));
+        $email         = mb_strtolower(trim($_POST['email'] ?? ''));
         $captcha_input = $_POST['captcha'] ?? '';
         $captcha_token = $_POST['captcha_token'] ?? '';
         $identifier    = $_SERVER['REMOTE_ADDR'] ?? 'unknown';

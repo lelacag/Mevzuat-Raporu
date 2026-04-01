@@ -27,7 +27,7 @@ if (empty($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token'])) {
 error_log('api/login.php POST from ' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown') . ' UA=' . substr(($_SERVER['HTTP_USER_AGENT'] ?? ''),0,120));
 
 // Get input
-$email_or_username = sanitize_input($_POST['email_or_username'] ?? '');
+$email_or_username = trim($_POST['email_or_username'] ?? '');
 $password = $_POST['password'] ?? '';
 
 // Validate input

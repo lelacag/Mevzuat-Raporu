@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (strlen($bio) > 500) {
             $errors[] = 'Biyografi 500 karakterden uzun olamaz.';
         } else {
-            $bio = sanitize_input($bio);
+            $bio = trim($bio);
             query("UPDATE users SET bio = ?, notify_by_email = ?, notify_on_mention = ?, notify_on_reply = ?, notify_on_report = ?, notify_on_system = ? WHERE id = ?", [$bio, $notify_by_email, $notify_on_mention, $notify_on_reply, $notify_on_report, $notify_on_system, $current_user_id]);
             
             // Handle custom badge for premium users

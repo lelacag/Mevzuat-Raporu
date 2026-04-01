@@ -21,7 +21,7 @@ $step = 'email'; // email or reset
 
 // Check if there's a reset token
 if (isset($_GET['token'])) {
-    $token = sanitize_input($_GET['token']);
+    $token = trim($_GET['token']);
     $step = 'reset';
     
     // Verify token exists and hasn't expired
@@ -37,7 +37,7 @@ if (isset($_GET['token'])) {
 // Handle password reset form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['reset_password'])) {
-        $token = sanitize_input($_POST['reset_token'] ?? '');
+        $token = trim($_POST['reset_token'] ?? '');
         $new_password = $_POST['new_password'] ?? '';
         $confirm_password = $_POST['confirm_password'] ?? '';
         
@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['request_reset'])) {
         // Handle password recovery request
-        $email_or_username = sanitize_input($_POST['email_or_username'] ?? '');
+        $email_or_username = trim($_POST['email_or_username'] ?? '');
         
         if (empty($email_or_username)) {
             $errors[] = 'E-posta veya kullanıcı adı gereklidir.';

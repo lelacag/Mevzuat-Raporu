@@ -6,7 +6,7 @@ require_once '../includes/auth.php';
 $reporter_id = get_current_user_id(); // may be null
 $target_type = $_POST['target_type'] ?? '';
 $target_id = intval($_POST['target_id'] ?? 0);
-$reason = sanitize_input($_POST['reason'] ?? null);
+$reason = trim($_POST['reason'] ?? null);
 $referer = $_POST['referer'] ?? $_SERVER['HTTP_REFERER'] ?? (BASE_PATH . '/index.php');
 $referer = validate_referer($referer, BASE_PATH . '/index.php', false);
 

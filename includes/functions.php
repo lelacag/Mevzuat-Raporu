@@ -598,8 +598,14 @@ function validate_referer($referer, $default = null, $require_admin = false) {
     return $default;
 }
 
+/**
+ * Sanitize user input for safe HTML output.
+ * Trims whitespace AND encodes HTML entities to prevent XSS.
+ * Use for displaying user-provided text in HTML context.
+ * For raw (unescaped) trimming only, use trim() directly.
+ */
 function sanitize_input($input) {
-    return trim($input);
+    return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
 }
 
 function filter_bad_words($text) {
@@ -2611,6 +2617,124 @@ function get_poll_for_group_post($group_post_id) {
 }
 
 /**
+ * Batch-load polls for multiple post IDs in a single set of queries.
+ * Returns an associative array keyed by post_id. Posts without polls will not appear in the result.
+ * This replaces the N+1 pattern of calling get_poll_for_post() in a loop.
+ */
+function get_polls_for_posts(array $post_ids) {
+    if (empty($post_ids)) return [];
+    $pdo = db_connect();
+    try {
+        $placeholders = implode(',', array_fill(0, count($post_ids), '?'));
+        
+        // 1. Fetch all polls for these posts
+        $stmt = $pdo->prepare("SELECT * FROM polls WHERE post_id IN ($placeholders)");
+        $stmt->execute(array_values($post_ids));
+        $polls = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (empty($polls)) return [];
+        
+        // Index by poll ID and post_id
+        $polls_by_id = [];
+        $polls_by_post = [];
+        foreach ($polls as &$poll) {
+            $poll['options'] = [];
+            $poll['user_vote'] = null;
+            $polls_by_id[$poll['id']] = &$poll;
+            $polls_by_post[$poll['post_id']] = &$poll;
+        }
+        unset($poll);
+        
+        $poll_ids = array_keys($polls_by_id);
+        $poll_placeholders = implode(',', array_fill(0, count($poll_ids), '?'));
+        
+        // 2. Fetch all options for these polls
+        $opts_stmt = $pdo->prepare("SELECT id, poll_id, text, votes_count FROM poll_options WHERE poll_id IN ($poll_placeholders) ORDER BY id ASC");
+        $opts_stmt->execute($poll_ids);
+        foreach ($opts_stmt->fetchAll(PDO::FETCH_ASSOC) as $opt) {
+            if (isset($polls_by_id[$opt['poll_id']])) {
+                $polls_by_id[$opt['poll_id']]['options'][] = $opt;
+            }
+        }
+        
+        // 3. Fetch user votes (if logged in)
+        $user_id = get_current_user_id();
+        if ($user_id) {
+            $votes_stmt = $pdo->prepare("SELECT poll_id, option_id FROM poll_votes WHERE poll_id IN ($poll_placeholders) AND user_id = ?");
+            $votes_stmt->execute(array_merge($poll_ids, [$user_id]));
+            foreach ($votes_stmt->fetchAll(PDO::FETCH_ASSOC) as $vote) {
+                if (isset($polls_by_id[$vote['poll_id']])) {
+                    $polls_by_id[$vote['poll_id']]['user_vote'] = (int)$vote['option_id'];
+                }
+            }
+        }
+        
+        return $polls_by_post;
+    } catch (PDOException $e) {
+        error_log('get_polls_for_posts DB error: ' . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Batch-load tests for multiple post IDs in a single set of queries.
+ * Returns an associative array keyed by post_id. Posts without tests will not appear in the result.
+ */
+function get_tests_for_posts(array $post_ids) {
+    if (empty($post_ids)) return [];
+    $pdo = db_connect();
+    try {
+        $placeholders = implode(',', array_fill(0, count($post_ids), '?'));
+        
+        $stmt = $pdo->prepare("SELECT pt.post_id, pt.test_id FROM post_tests pt WHERE pt.post_id IN ($placeholders)");
+        $stmt->execute(array_values($post_ids));
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (empty($rows)) return [];
+        
+        $result = [];
+        foreach ($rows as $row) {
+            // get_test_by_id is still called per-test, but there are typically very few tests
+            $test = get_test_by_id((int)$row['test_id']);
+            if ($test) {
+                $result[$row['post_id']] = $test;
+            }
+        }
+        return $result;
+    } catch (PDOException $e) {
+        error_log('get_tests_for_posts DB error: ' . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Helper: Attach polls and tests to an array of posts using batch loading.
+ * Mutates the $posts array in place, setting $post['poll'] and $post['test'] on each.
+ */
+function attach_polls_and_tests(array &$posts) {
+    if (empty($posts)) return;
+    $post_ids = array_column($posts, 'id');
+    $polls = get_polls_for_posts($post_ids);
+    $tests = get_tests_for_posts($post_ids);
+    foreach ($posts as &$p) {
+        $p['poll'] = $polls[$p['id']] ?? null;
+        $p['test'] = $tests[$p['id']] ?? null;
+    }
+    unset($p);
+}
+
+/**
+ * Helper: Attach polls only (no tests) to an array of posts.
+ */
+function attach_polls(array &$posts) {
+    if (empty($posts)) return;
+    $post_ids = array_column($posts, 'id');
+    $polls = get_polls_for_posts($post_ids);
+    foreach ($posts as &$p) {
+        $p['poll'] = $polls[$p['id']] ?? null;
+    }
+    unset($p);
+}
+
+/**
  * Return aggregated poll statistics for a given poll id.
  * - totals per option, percentages, total votes
  * - if attached to a group post, include group member count and response rate
@@ -2847,10 +2971,7 @@ function get_posts_paginated($limit = 40, $viewer_id = null, $after = null, $bef
     }
     
     // Attach polls and tests to posts (if any)
-    foreach ($results as &$r) {
-        $r['poll'] = get_poll_for_post($r['id']);
-        $r['test'] = get_test_for_post($r['id']);
-    }
+    attach_polls_and_tests($results);
 
     return [
         'posts' => $results,
@@ -2946,7 +3067,7 @@ function get_posts($limit = 50, $viewer_id = null) {
                 ORDER BY p.created_at DESC LIMIT ?
             ", [$viewer_id, $limit]);
             $rows = $stmt->fetchAll();
-            foreach ($rows as &$r) { $r['poll'] = get_poll_for_post($r['id']); $r['test'] = get_test_for_post($r['id']); }
+            attach_polls_and_tests($rows);
             return $rows;
         }
         // Show all users' posts (no approval/rookie visibility limit for user-specific feed)
@@ -2961,7 +3082,7 @@ function get_posts($limit = 50, $viewer_id = null) {
             ORDER BY p.created_at DESC LIMIT ?
         ", [$viewer_id, $limit]);
         $rows = $stmt->fetchAll();
-        foreach ($rows as &$r) { $r['poll'] = get_poll_for_post($r['id']); $r['test'] = get_test_for_post($r['id']); }
+        attach_polls_and_tests($rows);
         return $rows;
     }
     // Public view: show all users' top-level posts (no rookie limit)
@@ -2976,7 +3097,7 @@ function get_posts($limit = 50, $viewer_id = null) {
         ORDER BY p.created_at DESC LIMIT ?
     ", [$limit]);
     $rows = $stmt->fetchAll();
-    foreach ($rows as &$r) { $r['poll'] = get_poll_for_post($r['id']); }
+    attach_polls($rows);
     return $rows;
 } 
 
@@ -2996,7 +3117,7 @@ function get_user_posts($user_id, $limit = 50, $viewer_id = null) {
                 ORDER BY p.created_at DESC LIMIT ?
             ", [$viewer_id, $user_id, $limit]);
             $rows = $stmt->fetchAll();
-            foreach ($rows as &$r) { $r['poll'] = get_poll_for_post($r['id']); }
+            attach_polls($rows);
             return $rows;
         }
         // Owner sees their own posts even if not approved
@@ -3012,7 +3133,7 @@ function get_user_posts($user_id, $limit = 50, $viewer_id = null) {
                 ORDER BY p.created_at DESC LIMIT ?
             ", [$viewer_id, $user_id, $limit]);
             $rows = $stmt->fetchAll();
-            foreach ($rows as &$r) { $r['poll'] = get_poll_for_post($r['id']); }
+            attach_polls($rows);
             return $rows;
         }
     }
@@ -3613,22 +3734,40 @@ function create_notification($user_id, $type, $from_user_id, $post_id = null) {
                         $subject = SITE_NAME . " - Yeni bildirim";
                         $from_user = $from_user_id ? get_user($from_user_id) : null;
                         $from = $from_user ? $from_user['username'] : 'Sistem';
-                        $body = "Merhaba " . $u['username'] . ",\n\n";
+
                         switch ($type) {
                             case 'mention':
-                                $body .= "Sizi bir gönderide bahsettiler. Gönderiye bakmak için: " . full_url(get_post_url($post_id)) . "\n\n"; break;
+                                $notification_text = "Sizi bir gonderide bahsettiler. Gonderiye bakmak icin: " . full_url(get_post_url($post_id));
+                                break;
                             case 'reply':
-                                $body .= "Gönderinize yeni bir yanıt var: " . full_url(get_post_url($post_id)) . "\n\n"; break;
+                                $notification_text = "Gonderinize yeni bir yanit var: " . full_url(get_post_url($post_id));
+                                break;
                             case 'report':
-                                $body .= "Gönderiniz rapor edildi. Bir yönetici işlem yapmış olabilir.\n\n"; break;
+                                $notification_text = "Gonderiniz rapor edildi. Bir yonetici islem yapmis olabilir.";
+                                break;
                             case 'suspended':
-                                $body .= "Hesabınız bir yönetici tarafından yasaklandı.\n\n"; break;
+                                $notification_text = "Hesabiniz bir yonetici tarafindan yasaklandi.";
+                                break;
                             case 'unsuspended':
-                                $body .= "Hesabınızın yasağı kaldırıldı.\n\n"; break;
+                                $notification_text = "Hesabinizin yasagi kaldirildi.";
+                                break;
                             case 'account_approved':
-                                $body .= "Hesabınız onaylandı. Artık paylaşımlarınız görünebilir.\n\n"; break;
+                                $notification_text = "Hesabiniz onaylandi. Artik paylasimlariniz gorunebilir.";
+                                break;
+                            default:
+                                $notification_text = "Yeni bir bildirim var.";
+                                break;
                         }
-                        $body .= "Saygilar,\n" . SITE_NAME . "\n" . BASE_PATH . "\n";
+
+                        $body_lines = [
+                            "Merhaba " . $u['username'] . ",",
+                            $notification_text,
+                            "Saygilar,",
+                            SITE_NAME,
+                            BASE_PATH,
+                        ];
+
+                        $body = trim(implode("\n\n", array_filter($body_lines))) . "\n";
 
                         $mail_sent = send_email($u['email'], $subject, $body);
                         error_log("[NOTIFY] type=" . $type . " user=" . $u['id'] . " email=" . $u['email'] . " send=" . ($mail_sent ? 'ok' : 'fail'));
@@ -4046,7 +4185,7 @@ function get_relevant_posts_paginated($user_id = null, $limit = 40, $after = nul
     
     $posts = $all_posts;
     // Attach polls to relevant posts
-    foreach ($posts as &$ppp) { $ppp['poll'] = get_poll_for_post($ppp['id']); $ppp['test'] = get_test_for_post($ppp['id']); }
+    attach_polls_and_tests($posts);
     
     return [
         'posts' => $posts,

@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($errors)) {
         // don't process further if CSRF failed
     } else {
-        $username = sanitize_input($_POST['username'] ?? '');
+        $username = trim($_POST['username'] ?? '');
         $password = $_POST['password'] ?? '';
 
         if (empty($username) || empty($password)) {
