@@ -3966,6 +3966,7 @@ function get_relevant_posts($user_id = null, $limit = 40, $after = null) {
             FROM posts p
             JOIN users u ON p.user_id = u.id
             WHERE p.parent_id IS NULL AND p.deleted_at IS NULL AND u.deleted_at IS NULL
+              AND (p.scheduled_at IS NULL OR p.scheduled_at <= NOW())
               AND (u.is_approved = 1
                    OR (u.role = 'rookie' AND (
                         SELECT COUNT(*) FROM posts p2 WHERE p2.user_id = u.id AND p2.parent_id IS NULL AND p2.deleted_at IS NULL AND p2.id <= p.id
@@ -3991,7 +3992,11 @@ function get_relevant_posts($user_id = null, $limit = 40, $after = null) {
     // Build LIKE conditions for tags
     $tag_conditions = "";
     if (count($favorite_tags) > 0) {
-        $tag_likes = array_map(function($t) { return "p.content LIKE '%#" . addslashes($t) . "%'"; }, $favorite_tags);
+        $tag_likes = array_map(function($t) { 
+            // Escape LIKE wildcards properly (no addslashes)
+            $escaped = str_replace(['%', '_'], ['\\%', '\\_'], $t);
+            return "p.content LIKE '%#" . $escaped . "%'"; 
+        }, $favorite_tags);
         $tag_conditions = " OR (" . implode(" OR ", $tag_likes) . ")";
     }
     
@@ -4014,6 +4019,7 @@ function get_relevant_posts($user_id = null, $limit = 40, $after = null) {
         FROM posts p
         JOIN users u ON p.user_id = u.id
         WHERE p.parent_id IS NULL AND p.deleted_at IS NULL AND u.deleted_at IS NULL
+        AND (p.scheduled_at IS NULL OR p.scheduled_at <= NOW())
         AND (u.is_approved = 1 OR u.id = ?
              OR (u.role = 'rookie' AND (
                     SELECT COUNT(*) FROM posts p2 WHERE p2.user_id = u.id AND p2.parent_id IS NULL AND p2.deleted_at IS NULL AND p2.id <= p.id

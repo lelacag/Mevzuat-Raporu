@@ -64,12 +64,14 @@ CREATE TABLE IF NOT EXISTS `posts` (
   `replies_count` INT DEFAULT 0,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `scheduled_at` DATETIME DEFAULT NULL,
   `deleted_at` TIMESTAMP NULL DEFAULT NULL,
   INDEX `idx_user_id` (`user_id`),
   INDEX `idx_parent_id` (`parent_id`),
   INDEX `idx_created_at` (`created_at`),
   INDEX `idx_approved` (`approved`),
   INDEX `idx_review_status` (`review_status`),
+  INDEX `idx_scheduled` (`scheduled_at`),
   FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`parent_id`) REFERENCES `posts`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`approved_by`) REFERENCES `users`(`id`) ON DELETE SET NULL
@@ -83,6 +85,7 @@ CREATE TABLE IF NOT EXISTS `likes` (
   `reaction` VARCHAR(10) NOT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY `unique_like` (`user_id`, `post_id`),
+  INDEX `idx_post_id` (`post_id`),
   FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`post_id`) REFERENCES `posts`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -93,6 +96,7 @@ CREATE TABLE IF NOT EXISTS `follows` (
   `following_id` BIGINT UNSIGNED NOT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`follower_id`, `following_id`),
+  INDEX `idx_following_id` (`following_id`),
   FOREIGN KEY (`follower_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`following_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -108,6 +112,8 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   `read_at` TIMESTAMP NULL DEFAULT NULL,
   INDEX `idx_user_id` (`user_id`),
   INDEX `idx_created_at` (`created_at`),
+  INDEX `idx_user_unread` (`user_id`, `read_at`),
+  INDEX `idx_user_created` (`user_id`, `created_at` DESC),
   FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`from_user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`post_id`) REFERENCES `posts`(`id`) ON DELETE CASCADE
