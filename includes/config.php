@@ -77,7 +77,7 @@ define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1'); // use TCP instead of socke
 
 define('DB_NAME', getenv('DB_NAME') ?: 'textsocialmedia');
 define('DB_USER', getenv('DB_USER') ?: 'appuser');
-define('DB_PASS', getenv('DB_PASS') ?: 'R9eYaf67vZEyIMDQYPyvO3EqniunRqjF');
+define('DB_PASS', getenv('DB_PASS') ?: '');
 
 // Constants
 define('MAX_POST_LENGTH', 500);
@@ -137,18 +137,18 @@ if (file_exists(__DIR__ . '/../modules/sms/config.php')) {
 // SMTP delivery via Gmail
 define('SMTP_HOST', getenv('SMTP_HOST') ?: 'smtp.gmail.com');
 define('SMTP_PORT', intval(getenv('SMTP_PORT') ?: 587));
-define('SMTP_USER', getenv('SMTP_USER') ?: 'mevzuatraporu@gmail.com');
-define('SMTP_PASS', getenv('SMTP_PASS') ?: 'cdtz mvor bsgh lkuc');
+define('SMTP_USER', getenv('SMTP_USER') ?: '');
+define('SMTP_PASS', getenv('SMTP_PASS') ?: '');
 define('SMTP_SECURE', getenv('SMTP_SECURE') ?: 'tls');
 
 // URL session secret used to HMAC URL tokens. In production set via env var.
-define('URL_SESSION_SECRET', getenv('URL_SESSION_SECRET') ?: 'dev-change-this-secret');
+define('URL_SESSION_SECRET', getenv('URL_SESSION_SECRET') ?: '');
 // URL session TTL in seconds (default 1 hour)
 define('URL_SESSION_TTL', intval(getenv('URL_SESSION_TTL') ?: 3600));
 
 // Ngrok API token (used for fetching session count)
 // Set via environment variable NGROK_API_TOKEN or by editing this file.
-define('NGROK_API_TOKEN', getenv('NGROK_API_TOKEN') ?: '3BAFfEGiwLVpN5IO68iTEtKxS45_2rXBoh7r64QCJfUYtFRic');
+define('NGROK_API_TOKEN', getenv('NGROK_API_TOKEN') ?: '');
 
 // CAPTCHA debug flag (disabled by default). Enable only briefly for diagnostics by setting env var or changing this value.
 define('CAPTCHA_DEBUG', false);

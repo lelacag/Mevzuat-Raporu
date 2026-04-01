@@ -1,17 +1,6 @@
 <?php /* EN + TR comments used. */
-// DEBUG: temporary diagnostics to find why this page renders blank. Remove before deploying.
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
-
-// Print any fatal/shutdown errors directly to the response for fast diagnosis
-register_shutdown_function(function(){
-    $err = error_get_last();
-    if ($err) {
-        echo "<pre style=\"background:#fee;padding:12px;border:1px solid #fdd;\">SHUTDOWN ERROR: " . htmlspecialchars(print_r($err, true), ENT_QUOTES, 'UTF-8') . "</pre>\n";
-        // Also mirror to server error log for completeness
-        error_log('[events.php SHUTDOWN] ' . ($err['message'] ?? '') . ' in ' . ($err['file'] ?? '') . ' on line ' . ($err['line'] ?? 0));
-    }
-});
+// Error reporting is now handled centrally by includes/config.php.
+// Do NOT enable display_errors here — it leaks stack traces in production.
 
 $included = @include_once __DIR__ . '/includes/header.php';
 if ($included === false) {
