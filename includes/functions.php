@@ -121,6 +121,7 @@ function get_user_slug($username) {
         return isset($row['slug']) ? $row['slug'] : null;
     } catch (Exception $e) {
         // Slug column may not exist; safe fallback to no slug
+        error_log('get_user_slug error: ' . $e->getMessage());
         return null;
     }
 }
@@ -135,7 +136,8 @@ function post_url($post_id) {
             $r = $stmt->fetch();
             if ($r) $username = $r['username'];
         } catch (Exception $e) {
-            // ignore DB errors and fall back to numeric path
+            error_log('post_url username lookup error: ' . $e->getMessage());
+            // fall back to numeric path
         }
         return get_post_url($post_id, $username);
     } else {
@@ -673,6 +675,7 @@ function add_bad_word($word, $admin_id = null) {
         query("INSERT INTO bad_words (word, created_by) VALUES (?, ?)", [$word, $admin_id]);
         return true;
     } catch (Exception $e) {
+        error_log('add_bad_word error: ' . $e->getMessage());
         return false; // Duplicate or other error
     }
 }
@@ -854,6 +857,7 @@ function approve_word($word, $admin_id) {
         query("INSERT INTO approved_words (word, approved_by) VALUES (?, ?)", [$word, $admin_id]);
         return true;
     } catch (Exception $e) {
+        error_log('add_approved_word error: ' . $e->getMessage());
         return false; // Duplicate or error
     }
 }
@@ -947,9 +951,10 @@ function is_ip_blocked($ip) {
         if ($row['blocked_until'] === null) return true;
         if (strtotime($row['blocked_until']) > time()) return true;
         // expired -> cleanup (remove expired row)
-        try { query("DELETE FROM blocked_ips WHERE ip = ?", [$ip]); } catch (Exception $_) {}
+        try { query("DELETE FROM blocked_ips WHERE ip = ?", [$ip]); } catch (Exception $_) { error_log('blocked_ip cleanup error: ' . $_->getMessage()); }
         return false;
     } catch (Exception $e) {
+        error_log('is_ip_blocked error: ' . $e->getMessage());
         return false;
     }
 }
@@ -1060,6 +1065,7 @@ function create_user_invitations($sender_id, array $emails) {
             send_invite_email($e, $token);
             $out['created']++;
         } catch (Exception $x) {
+            error_log('invite_users error for ' . $e . ': ' . $x->getMessage());
             $out['skipped'][] = $e;
         }
     }
@@ -1488,10 +1494,12 @@ function get_user_by_username($username) {
         return $stmt->fetch();
     } catch (Exception $e) {
         // slug column may be missing in old schema; ignore and return basic user without slug
+        error_log('get_user_by_username slug fallback: ' . $e->getMessage());
         try {
             $stmt = query("SELECT id, username, bio, role, is_premium, premium_until, suspended_until, NULL AS event_code, created_at, email, notify_by_email, notify_on_mention, notify_on_reply, notify_on_report, notify_on_system, birthday, is_approved, is_online, last_activity FROM users WHERE username = ? AND deleted_at IS NULL", [$username]);
             return $stmt->fetch();
         } catch (Exception $_) {
+            error_log('get_user_by_username fallback error: ' . $_->getMessage());
             return false;
         }
     }
@@ -1566,6 +1574,7 @@ function update_user_slug($user_id, $username) {
                 query("UPDATE users SET slug = ? WHERE id = ?", [$testSlug, $user_id]);
                 return $testSlug;
             } catch (Exception $x) {
+                error_log('generate_slug retry collision: ' . $x->getMessage());
                 continue;
             }
         }
@@ -1636,6 +1645,7 @@ function get_or_create_event_code($user_id) {
         $col_check = query("SHOW COLUMNS FROM users LIKE 'event_code'")->fetch();
         if (!$col_check) return '';
     } catch (Exception $e) {
+        error_log('get_or_create_event_code column check failed: ' . $e->getMessage());
         return '';
     }
 
@@ -1662,6 +1672,7 @@ function regenerate_event_code($user_id) {
         $col_check = query("SHOW COLUMNS FROM users LIKE 'event_code'")->fetch();
         if (!$col_check) return '';
     } catch (Exception $e) {
+        error_log('regenerate_event_code column check error: ' . $e->getMessage());
         return '';
     }
 
@@ -1762,7 +1773,7 @@ function get_top_tags($limit = 10) {
         $stmt->execute();
         $postRows = array_merge($postRows, $stmt->fetchAll(PDO::FETCH_ASSOC));
     } catch (Exception $e) {
-        // ignore
+        error_log('get_top_tags posts query error: ' . $e->getMessage());
     }
 
     // Include public group posts (join with groups_table where is_private = 0)
@@ -1771,7 +1782,7 @@ function get_top_tags($limit = 10) {
         $stmt->execute();
         $postRows = array_merge($postRows, $stmt->fetchAll(PDO::FETCH_ASSOC));
     } catch (Exception $e) {
-        // ignore
+        error_log('get_top_tags group posts query error: ' . $e->getMessage());
     }
 
     $postCounts = [];
@@ -1792,7 +1803,7 @@ function get_top_tags($limit = 10) {
             $clickCounts[$row['tag']] = (int)$row['click_count'];
         }
     } catch (Exception $e) {
-        // ignore
+        error_log('get_top_tags tag_clicks error: ' . $e->getMessage());
     }
 
     // Score = post_count + 2 * click_count
@@ -1874,6 +1885,7 @@ function get_trending_tags_for_group($group_id, $limit = 10) {
         });
         return array_slice($rows, 0, $limit);
     } catch (Exception $e) {
+        error_log('get_trending_tags error: ' . $e->getMessage());
         return [];
     }
 }
@@ -2091,10 +2103,10 @@ function edit_post($user_id, $post_id, $new_content) {
                 save_post_edit($post_id, $user_id ?? null, $post['content'], $new_content ?? null);
             } catch (Exception $e) {
                 error_log('post_edits save_post_edit failed: ' . $e->getMessage());
-                try { query("INSERT INTO post_edits (post_id, original_content) VALUES (?, ?)", [$post_id, $post['content']]); } catch (Exception $_) {}
+                try { query("INSERT INTO post_edits (post_id, original_content) VALUES (?, ?)", [$post_id, $post['content']]); } catch (Exception $_) { error_log('post_edits fallback insert error: ' . $_->getMessage()); }
             }
         } else {
-            try { query("INSERT INTO post_edits (post_id, original_content) VALUES (?, ?)", [$post_id, $post['content']]); } catch (Exception $_) {}
+            try { query("INSERT INTO post_edits (post_id, original_content) VALUES (?, ?)", [$post_id, $post['content']]); } catch (Exception $_) { error_log('post_edits direct insert error: ' . $_->getMessage()); }
         }
     
     // Censor bad words in new content
@@ -2150,6 +2162,7 @@ function create_post($user_id, $content, $parent_id = null) {
     try {
         $pre_top_level_count = get_user_top_level_post_count($user_id);
     } catch (Throwable $_t) {
+        error_log('pre_top_level_count error: ' . $_t->getMessage());
         $pre_top_level_count = null;
     }
     
@@ -2293,6 +2306,7 @@ if (!function_exists('save_post_edit')) {
             return true;
         } catch (Exception $e) {
             // Fallback to legacy single-column schema if new columns don't exist
+            error_log('save_post_edit new schema failed, trying legacy: ' . $e->getMessage());
             try {
                 query("INSERT INTO post_edits (post_id, original_content) VALUES (?, ?)", [$post_id, $previous ?? '']);
                 return true;
@@ -2312,6 +2326,7 @@ if (!function_exists('get_post_edits')) {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             // Fallback to legacy shape
+            error_log('get_post_edits new schema failed, trying legacy: ' . $e->getMessage());
             try {
                 $stmt = query("SELECT id, post_id, NULL AS editor_id, NULL AS created_at, NULL AS previous_content, NULL AS new_content, original_content FROM post_edits WHERE post_id = ? ORDER BY id DESC LIMIT ?", [$post_id, (int)$limit]);
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -2330,7 +2345,7 @@ if (!function_exists('get_post_edit')) {
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($row) return $row;
         } catch (Exception $e) {
-            // ignore
+            error_log('get_post_edit error: ' . $e->getMessage());
         }
         return null;
     }
@@ -2804,6 +2819,7 @@ function vote_poll($user_id, $poll_id, $option_id) {
             return ['status' => 'removed'];
         } catch (Exception $e) {
             $pdo->rollBack();
+            error_log('vote_on_poll remove rollback: ' . $e->getMessage());
             return ['error' => 'db_error', 'message' => $e->getMessage()];
         }
     }
@@ -2847,6 +2863,7 @@ function vote_poll($user_id, $poll_id, $option_id) {
         }
     } catch (Exception $e) {
         $pdo->rollBack();
+        error_log('vote_on_poll rollback: ' . $e->getMessage());
         return ['error' => 'db_error', 'message' => $e->getMessage()];
     }
 }
@@ -3217,6 +3234,7 @@ function get_group_comments($post_id, $viewer_id = null, $parent_id = null, $dep
         
         return $comments;
     } catch (Exception $e) {
+        error_log('get_group_comments error: ' . $e->getMessage());
         return [];
     }
 }
@@ -3227,6 +3245,7 @@ function count_group_comments($post_id) {
         $stmt = query("SELECT COUNT(*) as cnt FROM group_post_comments WHERE post_id = ?", [$post_id]);
         return (int)$stmt->fetch()['cnt'];
     } catch (Exception $e) {
+        error_log('count_group_comments error: ' . $e->getMessage());
         return 0;
     }
 }
@@ -3508,6 +3527,7 @@ function assign_badge_to_user($user_id, $badge_id, $assigned_by = null) {
         query("INSERT INTO user_badges (user_id, badge_id, assigned_by) VALUES (?, ?, ?)", [$user_id, $badge_id, $assigned_by]);
     } catch (PDOException $e) {
         // ignore duplicates
+        error_log('assign_badge_to_user duplicate or error: ' . $e->getMessage());
     }
 }
 
@@ -3532,7 +3552,7 @@ function ensure_tag_clicks_table() {
             updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     } catch (Exception $e) {
-        // ignore
+        error_log('ensure_tag_clicks_table failed: ' . $e->getMessage());
     }
     $ensured = true;
 }
@@ -3551,7 +3571,7 @@ function record_tag_click($tag) {
         query("INSERT INTO tag_clicks (tag, click_count) VALUES (?, 1)
                ON DUPLICATE KEY UPDATE click_count = click_count + 1", [$t]);
     } catch (Exception $e) {
-        // ignore
+        error_log('record_tag_click failed: ' . $e->getMessage());
     }
 }
 
@@ -3815,6 +3835,7 @@ function format_time($timestamp) {
     try {
         $dt = new DateTimeImmutable($timestamp, $tz);
     } catch (Exception $e) {
+        error_log('format_time parse error for "' . $timestamp . '": ' . $e->getMessage());
         $ts = @strtotime($timestamp);
         if ($ts === false) {
             $ts = time();
@@ -4027,7 +4048,7 @@ function track_user_activity($user_id) {
     try {
         query("UPDATE users SET is_online = 1, last_activity = NOW() WHERE id = ?", [$user_id]);
     } catch (Exception $e) {
-        // Silently fail if activity tracking fails
+        error_log('track_user_activity failed for user ' . $user_id . ': ' . $e->getMessage());
     }
 }
 
@@ -4204,6 +4225,7 @@ function follow_user($follower_id, $following_id) {
         query("INSERT IGNORE INTO followers (follower_id, following_id) VALUES (?, ?)", [$follower_id, $following_id]);
         return true;
     } catch (Exception $e) {
+        error_log('follow_user failed: ' . $e->getMessage());
         return false;
     }
 }
@@ -4217,6 +4239,7 @@ function unfollow_user($follower_id, $following_id) {
         query("DELETE FROM followers WHERE follower_id = ? AND following_id = ?", [$follower_id, $following_id]);
         return true;
     } catch (Exception $e) {
+        error_log('unfollow_user failed: ' . $e->getMessage());
         return false;
     }
 }
