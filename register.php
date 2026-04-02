@@ -145,12 +145,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['login_submit'])) {
                     $verification_url = full_url(BASE_PATH . '/verify_email.php?token=' . urlencode($verification_token));
 
                     $subject = 'E-posta Doğrulama - ' . SITE_NAME;
-                    $message = "Merhaba " . htmlspecialchars($username) . ",\n\n";
-                    $message .= SITE_NAME . " platformuna hoş geldiniz!\n\n";
-                    $message .= "Hesabınızı aktifleştirmek için lütfen aşağıdaki bağlantıya tıklayın:\n\n";
-                    $message .= $verification_url . "\n\n";
-                    $message .= "Bu bağlantı 24 saat geçerlidir.\n\n";
-                    $message .= "İyi günler!";
+                    $message = "Merhaba " . $username . ",\n\n";
+                    $message .= SITE_NAME . " platformuna hoş geldiniz! Hesabınızı aktifleştirmek için lütfen aşağıdaki bağlantıya tıklayın: " . $verification_url . "\n\n";
+                    $message .= "Bu bağlantı 24 saat geçerlidir. İyi günler!";
 
                     if (defined('MAIL_ENABLED') && MAIL_ENABLED) {
                         $mail_sent = send_email($email, $subject, $message);

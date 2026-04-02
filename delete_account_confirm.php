@@ -36,11 +36,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Send email
             $subject = 'Hesap Silme Onayı - ' . SITE_NAME;
-            $message = "Merhaba " . htmlspecialchars($user['username']) . ",\n\n";
-            $message .= "Hesabınızı silmek için aşağıdaki onay kodunu kullanın:\n\n";
-            $message .= "Onay Kodu: " . $deletion_token . "\n\n";
-            $message .= "Bu kod 1 saat geçerlidir.\n\n";
-            $message .= "Bu işlemi siz yapmadıysanız, bu e-postayı görmezden gelebilirsiniz.\n\n";
+            $message = "Merhaba " . $user['username'] . ",\n\n";
+            $message .= "Hesabınızı silmek için aşağıdaki onay kodunu kullanın:\n\nOnay Kodu: " . $deletion_token . "\n\n";
+            $message .= "Bu kod 1 saat geçerlidir. Bu işlemi siz yapmadıysanız, bu e-postayı görmezden gelebilirsiniz.\n\n";
             $message .= "İyi günler!";
             
             if (defined('MAIL_ENABLED') && MAIL_ENABLED) {

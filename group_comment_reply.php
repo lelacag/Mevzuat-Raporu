@@ -83,7 +83,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 ?>
 
-<div class="main-container single-column">
+<div class="main-container groups-layout">
+    <!-- Left Sidebar -->
+    <aside class="sidebar sidebar-left">
+        <div class="sidebar-section">
+            <div class="sidebar-title">Navigasyon</div>
+            <ul class="sidebar-list">
+                <li><a href="<?= BASE_PATH ?>/group.php?slug=<?= urlencode($slug) ?>">← <?= htmlspecialchars($parent_comment['group_name']) ?></a></li>
+                <li><a href="<?= BASE_PATH ?>/group_post.php?id=<?= $post_id ?>">← Gönderiye Dön</a></li>
+                <li><a href="<?= BASE_PATH ?>/topluluklar">Tüm Topluluklar</a></li>
+            </ul>
+        </div>
+    </aside>
+
     <main class="content-area form-centered">
         <h1 class="section-title">↩️ Yanıt Ver</h1>
 

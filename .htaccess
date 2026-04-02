@@ -67,8 +67,13 @@
     # Notifications (filters like /bildirimler/mention)
     RewriteRule ^bildirimler(?:/.*)?$ notification.php [L,QSA]
     RewriteRule ^davet-et$    invite.php   [L,QSA]
-    RewriteRule ^sifirla$      forgot_password.php [L,QSA]
-    RewriteRule ^sifirla/([A-Fa-f0-9]{64})$ forgot_password.php?token=$1 [L,QSA]
+    RewriteRule ^sifirla$      /sifremi-unuttum [R=301,L]
+    RewriteRule ^sifirla/([A-Fa-f0-9]{64})$ /sifremi-unuttum?token=$1 [R=301,L]
+    RewriteRule ^sifremi-unuttum$ forgot_password.php [L,QSA]
+    RewriteRule ^sifremi-unuttum/([A-Fa-f0-9]{64})$ forgot_password.php?token=$1 [L,QSA]
+
+    RewriteCond %{THE_REQUEST} \s+/forgot_password\.php[\s?] [NC]
+    RewriteRule ^forgot_password\.php$ /sifremi-unuttum [R=301,L]
 
     # ── Profile edit / password URLs
     RewriteRule ^profil/duzenle$ profile_edit.php [L,QSA]

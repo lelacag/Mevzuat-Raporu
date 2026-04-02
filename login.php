@@ -1,5 +1,9 @@
 <?php /* EN + TR comments used. */
 
+$extra_head = "\n    <link rel=\"stylesheet\" href=\"/assets/landing.css\">"
+    . "\n    <link rel=\"stylesheet\" href=\"/assets/css/captcha.css\">";
+$extra_body_classes = ['login-page'];
+
 require_once __DIR__ . '/includes/header.php';
 
 $errors = [];
@@ -121,35 +125,116 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<div class="main-container single-column">
-    <main class="content-area form-centered">
-        <div class="content-wrapper">
-        <h1>Giris Yap</h1>
+<style>
+    body.login-page {
+        background-color: #f9f9f9;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+    .login-page .content-container {
+        width: auto;
+        margin: 0 auto;
+    }
+    .login-page .content-item {
+        width: auto !important;
+        float: none !important;
+        margin: 0 auto;
+    }
+    .login-page .content-section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding-top: 0;
+    }
+    .login-page .login-card {
+        max-width: 460px;
+        width: 100%;
+        text-align: left;
+        background: #fff;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .login-page .main-heading {
+        text-align: center;
+    }
+    .login-page .form-group {
+        margin-bottom: 1rem;
+        display: flex;
+        flex-direction: column;
+    }
+    .login-page .form-group label {
+        margin-bottom: 0.3rem;
+        font-weight: 500;
+    }
+    .login-page .form-group input[type="text"],
+    .login-page .form-group input[type="password"] {
+        width: 100%;
+        padding: 0.45rem 0.6rem;
+        box-sizing: border-box;
+    }
+    .login-page .form-group button {
+        display: block;
+        margin: 0 auto;
+        padding: 0.55rem 1.2rem;
+    }
+    .login-page .form-links {
+        text-align: center;
+        margin-top: 1rem;
+        font-size: 14px;
+    }
+    .login-page .form-links p {
+        margin: 0.4rem 0;
+    }
+</style>
 
-        <?php if (!empty($errors)): ?>
-            <ul class="errors">
-                <?php foreach ($errors as $error): ?>
-                    <li><?= $error ?></li>
-                <?php endforeach; ?>
-            </ul>
-        <?php endif; ?>
+<div class="content-section">
+    <div class="content-container">
+        <div class="content-item login-card">
+            <div class="main-heading">
+                <h2>Giriş Yap</h2>
+            </div>
 
-        <form method="POST">
-            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
-            <label>Username:</label><br>
-            <input type="text" name="username" required size="30"><br>
-            <label>Password:</label><br>
-            <input type="password" name="password" required size="30"><br>
-            <?php if (!empty($_GET['reject_cookies'])): ?>
-                <input type="hidden" name="reject_cookies" value="1">
-                <div class="info-note">Bu oturum için çerez kullanmadan siteyi kullanmayı seçtiniz.</div>
-            <?php endif; ?>
-            <button type="submit">Giris Yap</button>
-        </form>
+            <div class="form-section">
+                <?php if (!empty($errors)): ?>
+                    <div class="form-alert form-alert-error">
+                        <?php foreach ($errors as $error): ?>
+                            ✗ <?= htmlspecialchars($error) ?>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
 
-        <p>Hesabin yok mu? <a href="<?= BASE_PATH ?>/kayit">Kayit ol</a></p>
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
+
+                    <div class="form-group">
+                        <label for="username">Kullanıcı adı</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Şifre</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+
+                    <?php if (!empty($_GET['reject_cookies'])): ?>
+                        <input type="hidden" name="reject_cookies" value="1">
+                        <div class="info-note">Bu oturum için çerez kullanmadan siteyi kullanmayı seçtiniz.</div>
+                    <?php endif; ?>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Giriş Yap</button>
+                    </div>
+                </form>
+
+                <div class="form-links">
+                    <p>Hesabın yok mu? <a href="<?= BASE_PATH ?>/kayit">Kayıt ol.</a></p>
+                    <p><a href="<?= BASE_PATH ?>/sifremi-unuttum">Şifremi unuttum</a></p>
+                </div>
+            </div>
         </div>
-    </main>
+    </div>
 </div>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
