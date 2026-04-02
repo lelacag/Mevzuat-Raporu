@@ -68,9 +68,7 @@
     margin: 0 12px;
 }
 .post-card-icon {
-    width: auto;
-    min-width: 26px;
-    padding: 0 8px;
+    width: 26px;
     height: 26px;
     background: #5a9a3c;
     color: #fff;

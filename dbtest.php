@@ -1,0 +1,1 @@
+<?php require "/srv/www/mevzuatraporu/includes/config.php"; require "/srv/www/mevzuatraporu/includes/db.php"; echo "connecting..."; try{ db_connect(); echo "OK";} catch(Exception $e){ echo "ERR:" . $e->getMessage(); }

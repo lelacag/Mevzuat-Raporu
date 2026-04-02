@@ -10,12 +10,6 @@ if (!is_admin()) {
 $id = !empty($_POST['update_id']) ? (int)$_POST['update_id'] : 0;
 $content = trim($_POST['content'] ?? '');
 $referer = $_POST['referer'] ?? BASE_PATH . '/admin/events.php';
-// CSRF protection for admin edits
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token']))) {
-    $_SESSION['flash_error'] = 'Geçersiz istek (CSRF)';
-    header('Location: ' . $referer);
-    exit;
-}
 if (empty($id) || $content === '') {
     $_SESSION['flash_error'] = 'Geçersiz veri.';
     header('Location: ' . $referer);

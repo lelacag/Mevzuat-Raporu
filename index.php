@@ -48,7 +48,6 @@ if (preg_match('#^/post/([0-9]+)/karsilastirma/history/?$#', $reqPath, $hm)) {
     require __DIR__ . '/post.php';
     exit;
 }
-
 if (!$user_id) {
     // Discard any buffered header output so landing.php renders its own full page
     while (ob_get_level()) { ob_end_clean(); }
@@ -133,7 +132,6 @@ $last_feed_seen_at = isset($_SESSION['last_feed_seen_at']) ? $_SESSION['last_fee
 
 
 if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['insert_type']) || isset($_POST['insert_tag']))) {
-    require_csrf();
     $insert_type = $_POST['insert_type'] ?? null;
     // Prefer current textarea content (if present), then fall back to session draft
     $draft = $_POST['content'] ?? get_draft($user_id);
@@ -171,10 +169,31 @@ if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['insert_t
     exit;
 }
 
-// Handle preview (buttonized)
+// Handle preview / schedule-mode
 $skip_create = false;
-if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'preview') {
-    require_csrf();
+$show_schedule = false;
+if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['schedule_cancel'])) {
+    $show_schedule = false;
+    $_POST['scheduled_at'] = '';
+    $preview_content = $_POST['content'] ?? get_draft($user_id);
+    if (trim($preview_content) === '') {
+        $preview_error = 'Önizlemek için içerik gerekli.';
+    } else {
+        $preview_html = render_rich_text($preview_content);
+    }
+    save_draft($user_id, $preview_content);
+    $skip_create = true;
+} elseif ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['schedule_mode'])) {
+    $show_schedule = true;
+    $preview_content = $_POST['content'] ?? get_draft($user_id);
+    if (trim($preview_content) === '') {
+        $preview_error = 'Önizlemek için içerik gerekli.';
+    } else {
+        $preview_html = render_rich_text($preview_content);
+    }
+    save_draft($user_id, $preview_content);
+    $skip_create = true;
+} elseif ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['preview'])) {
     $preview_content = $_POST['content'] ?? get_draft($user_id);
     if (trim($preview_content) === '') {
         $preview_error = 'Önizlemek için içerik gerekli.';
@@ -189,52 +208,103 @@ if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])
 
 // Handle post creation
 if (!$skip_create && $user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create_post') {
-    require_csrf();
     $content = $_POST['content'] ?? '';
-    // If no content in POST, use draft
     if (trim($content) === '') {
         $content = get_draft($user_id);
     }
-    
-    if (empty($content)) {
-        $errors[] = t('post_empty_error');
+
+    $is_schedule_mode = isset($_POST['schedule_mode']);
+    $is_schedule_submit = isset($_POST['schedule_submit']);
+    $is_preview = isset($_POST['preview']);
+    $is_publish = isset($_POST['publish']);
+
+    if ($is_schedule_mode) {
+        $show_schedule = true;
+        $preview_content = $content;
+        if (trim($preview_content) !== '') {
+            $preview_html = render_rich_text($preview_content);
+        }
+        save_draft($user_id, $preview_content);
+    }
+
+    if ($is_preview) {
+        $show_schedule = false;
+        $preview_content = $content;
+        if (trim($preview_content) !== '') {
+            $preview_html = render_rich_text($preview_content);
+        }
+        save_draft($user_id, $preview_content);
+        $skip_create = true;
+    }
+
+    if (!$is_publish && !$is_schedule_submit) {
+        // Either in preview/schedule mode for display only
+        if ($is_preview || $is_schedule_mode) {
+            $skip_create = true;
+        }
+    }
+
+    if ($skip_create) {
+        // do not create post now
     } else {
-        $res = create_post($user_id, $content);
-        if (isset($res['error'])) {
-            if ($res['error'] === 'suspended') {
-                $errors[] = t('post_suspended_error', htmlspecialchars($res['until']));
-            } elseif ($res['error'] === 'unapproved_limit') {
-                $errors[] = $res['message'];
-            } elseif ($res['error'] === 'limit_exceeded') {
-                $errors[] = $res['message'];
-            } else {
-                $errors[] = t('post_failed_error');
+        if (empty($content)) {
+            $errors[] = t('post_empty_error');
+        } else {
+            $scheduled_at = null;
+            if ($is_schedule_submit) {
+                $scheduled_at = trim($_POST['scheduled_at'] ?? '');
+                if ($scheduled_at === '') {
+                    $errors[] = 'Zamanlanmış zaman gereklidir.';
+                    $show_schedule = true;
+                }
+            } elseif (!$is_schedule_submit && isset($_POST['scheduled_at']) && trim($_POST['scheduled_at']) !== '') {
+                $scheduled_at = trim($_POST['scheduled_at']);
             }
-        } elseif (isset($res['id'])) {
-            if ($res['has_bad_words']) {
-                $_SESSION['flash'] = t('post_badwords_censored');
-            } elseif ($res['approved']) {
-                $_SESSION['flash'] = t('post_created_flash');
-            } else {
-                $_SESSION['flash'] = t('post_pending_flash');
-            }
-            // Clear draft on successful creation
-            save_draft($user_id, '');
-            // Prefer clean root URL over index.php to keep links tidy
-            $redir = rtrim(BASE_PATH, '/') . '/';
-            if ($redir === '') {
-                $redir = '/';
-            }
-            if (!empty($_REQUEST['sid'])) {
-                $sid_param = preg_replace('/[^A-Za-z0-9._-]/', '', $_REQUEST['sid']);
-                if ($sid_param) {
-                    $redir .= '?sid=' . rawurlencode($sid_param);
+
+            if (empty($errors)) {
+                $res = create_post($user_id, $content, null, $scheduled_at);
+                if (isset($res['error'])) {
+                    if ($res['error'] === 'suspended') {
+                        $errors[] = t('post_suspended_error', htmlspecialchars($res['until']));
+                    } elseif ($res['error'] === 'unapproved_limit') {
+                        $errors[] = $res['message'];
+                    } elseif ($res['error'] === 'limit_exceeded') {
+                        $errors[] = $res['message'];
+                    } elseif ($res['error'] === 'scheduled_at_invalid') {
+                        $errors[] = 'Geçersiz planlanmış tarih/saat formatı.';
+                        $show_schedule = true;
+                    } elseif ($res['error'] === 'scheduled_at_past') {
+                        $errors[] = 'Planlanan gönderi geçmiş zamanda olamaz.';
+                        $show_schedule = true;
+                    } elseif ($res['error'] === 'scheduled_at_too_far') {
+                        $errors[] = 'Planlama tarihi çok uzak (1 yıl içinde olmalı).';
+                        $show_schedule = true;
+                    } elseif ($res['error'] === 'premium_required_scheduled_post') {
+                        $errors[] = 'Planlama özelliği yalnızca premium kullanıcılar için uygundur.';
+                    } else {
+                        $errors[] = t('post_failed_error');
+                    }
+                } elseif (isset($res['id'])) {
+                    if ($res['has_bad_words']) {
+                        $_SESSION['flash'] = t('post_badwords_censored');
+                    } elseif (!empty($scheduled_at)) {
+                        $_SESSION['flash'] = t('post_scheduled_success');
+                    } elseif ($res['approved']) {
+                        $_SESSION['flash'] = t('post_created_flash');
+                    } else {
+                        $_SESSION['flash'] = t('post_pending_flash');
+                    }
+                    save_draft($user_id, '');
+                    $redir = rtrim(BASE_PATH, '/') . '/';
+                    if ($redir === '') { $redir = '/'; }
+                    if (!empty($_REQUEST['sid'])) {
+                        $sid_param = preg_replace('/[^A-Za-z0-9._-]/', '', $_REQUEST['sid']);
+                        if ($sid_param) { $redir .= '?sid=' . rawurlencode($sid_param); }
+                    }
+                    header('Location: ' . $redir);
+                    exit;
                 }
             }
-            header('Location: ' . $redir);
-            exit;
-        } else {
-            $errors[] = t('post_failed_error');
         }
     }
 }
@@ -453,15 +523,6 @@ if ($user_id) {
                 ");
                 $my_groups_stmt->execute([$user_id, $user_id]);
                 $my_groups = $my_groups_stmt->fetchAll();
-
-                // TEMP DEBUG: if the logged-in user is 'edmin', log the my_groups results for investigation
-                if (isset($usr['username']) && $usr['username'] === 'edmin') {
-                    $log = [];
-                    $log[] = "DEBUG my_groups for user=edmin user_id=" . ($user_id ?? 'null');
-                    $log[] = "count=" . count($my_groups);
-                    foreach ($my_groups as $mg) { $log[] = "group: " . ($mg['id'] ?? '?') . " - " . ($mg['name'] ?? ($mg['slug'] ?? '?')); }
-                    @file_put_contents('/tmp/group_debug.log', implode("\n", $log) . "\n---\n", FILE_APPEND | LOCK_EX);
-                }
                 
                 foreach ($my_groups as $group):
                 ?>
@@ -550,7 +611,7 @@ if ($user_id) {
             <?php endif; ?>
 
             <form method="POST" class="post-form" id="composer-form">
-                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
+                <input type="hidden" name="action" value="create_post">
                 <div class="post-toolbar">
                     <div class="toolbar-actions">
                         <button type="submit" name="insert_type" value="tag" class="btn-small">#</button>
@@ -574,6 +635,16 @@ if ($user_id) {
                 <!-- Composer quick insert removed — plus buttons were unnecessary. Trending tags are available in the tag navigation. -->
 
                 <textarea name="content" placeholder="Ne düşünüyorsun?"><?= sanitize_input($_POST['content'] ?? get_draft($user_id)) ?></textarea>
+                <?php if ((is_user_premium($user_id) || is_admin()) && ($show_schedule || !empty($_POST['scheduled_at']))) : ?>
+                    <div class="post-schedule-row" style="margin:8px 0;">
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:nowrap;">
+                            <label for="scheduled_at" style="margin:0; font-size:0.9em;">⏰ Zamanla:</label>
+                            <input id="scheduled_at" type="datetime-local" name="scheduled_at" value="<?= htmlspecialchars($_POST['scheduled_at'] ?? '') ?>" style="min-width:180px;" />
+                            <button type="submit" name="schedule_submit" value="1" class="btn-post">Kaydet</button>
+                            <button type="submit" name="schedule_cancel" value="1" class="btn-outline">İptal</button>
+                        </div>
+                    </div>
+                <?php endif; ?>
                 <div class="post-form-actions">
                     <?php if ($user_id && get_user_post_limit($user_id) == 0): ?>
                         <span class="char-count">Sınırsız (Premium)</span>
@@ -582,8 +653,11 @@ if ($user_id) {
                     <?php endif; ?>
                     <!-- Swapped buttons: Preview first, then Publish (grouped closely) -->
                     <div class="post-actions-buttons">
-                        <button type="submit" name="action" value="preview" class="btn-outline">Önizleme</button>
-                        <button type="submit" name="action" value="create_post" class="btn-post">Paylaş</button>
+                        <button type="submit" name="preview" value="1" class="btn-outline" <?php if ($current_draft === '') echo 'disabled'; ?>>Önizleme</button>
+                        <?php if (is_user_premium($user_id) || is_admin()): ?>
+                            <button type="submit" name="schedule_mode" value="1" class="btn-outline">Zamanla</button>
+                        <?php endif; ?>
+                        <button type="submit" name="publish" value="1" class="btn-post">Paylaş</button>
                     </div>
                 </div>
             </form>
@@ -642,21 +716,6 @@ if ($user_id) {
             } catch (Exception $e) {
                 // ignore feed injection errors
             }
-
-            // De-duplicate timeline rows by source type + ID to avoid repeated entries from duplicate insertion routes
-            $seen_feed = [];
-            $unique_feed = [];
-            foreach ($combined_feed as $item) {
-                $id = isset($item['data']['id']) ? $item['data']['id'] : 0;
-                $key = $item['type'] . '_' . $id;
-                if (isset($seen_feed[$key])) {
-                    continue;
-                }
-                $seen_feed[$key] = true;
-                $unique_feed[] = $item;
-            }
-            $combined_feed = $unique_feed;
-
             usort($combined_feed, function($a, $b) { return strtotime($b['created_at']) <=> strtotime($a['created_at']); });
         ?>
         <div class="posts-feed">
@@ -762,7 +821,6 @@ if ($user_id) {
                             </div>
                             <div class="suggestion-action">
                                 <form method="POST" action="<?= BASE_PATH ?>/api/follow.php" class="form-inline">
-                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generate_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                                     <input type="hidden" name="following_id" value="<?= $s['id'] ?>">
                                     <input type="hidden" name="referer" value="<?= htmlspecialchars($_SERVER['REQUEST_URI']) ?>">
                                     <button class="follow-btn-compact" type="submit">kuyruk</button>

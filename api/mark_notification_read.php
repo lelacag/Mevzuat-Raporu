@@ -11,13 +11,6 @@ if (!$user_id) {
     exit;
 }
 
-// CSRF protection
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && (empty($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token']))) {
-    http_response_code(400);
-    echo 'invalid_csrf';
-    exit;
-}
-
 $notification_id = $_POST['notification_id'] ?? 0;
 
 if ($notification_id) {

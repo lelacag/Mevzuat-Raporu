@@ -2,17 +2,9 @@
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/db.php';
 
-
 if (!is_admin()) {
     http_response_code(403);
     exit('Forbidden');
-}
-
-// CSRF protection for admin promote
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token']))) {
-    $_SESSION['flash_error'] = 'Geçersiz istek (CSRF)';
-    header('Location: ' . ($_POST['referer'] ?? BASE_PATH . '/events.php'));
-    exit;
 }
 
 $promoted = 0;

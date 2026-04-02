@@ -9,16 +9,25 @@ $errors = [];
 if ($user_id && isset($_GET['action']) && $_GET['action'] === 'new') {
     // Redirect to index to create post or show dedicated form
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create_post') {
-        require_csrf();
         $content = $_POST['content'] ?? '';
         
         if (empty($content)) {
             $errors[] = 'Gönderi içeriği boş olamaz.';
         } else {
-            $res = create_post($user_id, $content);
+            $scheduled_at = trim($_POST['scheduled_at'] ?? '');
+            if ($scheduled_at === '') { $scheduled_at = null; }
+            $res = create_post($user_id, $content, null, $scheduled_at);
             if (isset($res['error'])) {
                 if ($res['error'] === 'suspended') {
                     $errors[] = 'Hesabınız geçici olarak yasaklıdır (süresince: ' . htmlspecialchars($res['until']) . ').';
+                } elseif ($res['error'] === 'scheduled_at_invalid') {
+                    $errors[] = 'Geçersiz zamanlanmış tarih/saat.';
+                } elseif ($res['error'] === 'scheduled_at_past') {
+                    $errors[] = 'Zamanlanmış zaman geçmiş olamaz.';
+                } elseif ($res['error'] === 'scheduled_at_too_far') {
+                    $errors[] = 'Zamanlanmış zaman çok uzakta (en fazla 1 yıl).';
+                } elseif ($res['error'] === 'premium_required_scheduled_post') {
+                    $errors[] = 'Zamanlı gönderiler sadece premium kullanıcılar için.';
                 } else {
                     $errors[] = 'Gönderi oluşturulamadı.';
                 }
@@ -59,9 +68,14 @@ if ($user_id && isset($_GET['action']) && $_GET['action'] === 'new') {
             <?php endif; ?>
             
             <form method="POST" class="card-box padded">
-                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
                 <input type="hidden" name="action" value="create_post">
                 <textarea name="content" placeholder="Ne düşünüyorsun?" required class="post-textarea" autofocus></textarea>
+                <?php if (is_user_premium($user_id) || is_admin()): ?>
+                    <div style="margin:8px 0; display:flex; gap:8px; align-items:center;">
+                        <label for="scheduled_at" style="margin:0;font-size:0.9em;">⏰ Zamanla:</label>
+                        <input id="scheduled_at" type="datetime-local" name="scheduled_at" value="<?= htmlspecialchars($_POST['scheduled_at'] ?? '') ?>" />
+                    </div>
+                <?php endif; ?>
                 <div class="post-form-actions">
                     <span class="char-count">500+ karakter (otomatik bölünür)</span>
                     <button type="submit" class="btn-post">Gönder</button>
@@ -89,11 +103,20 @@ if ($user_id && isset($_GET['action']) && $_GET['action'] === 'new') {
 // Get post ID from URL
 $post_id = $_GET['id'] ?? 0;
 
-
+// If the server routed directly to post.php (without index.php shim), detect
+// friendly compare path segments in the request URI and populate $_GET['compare']
+// so downstream compare handling works for both '/latest' and '/son-duzenleme'.
+if (!isset($_GET['compare'])) {
+    $reqPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+    if (strpos($reqPath, '/karsilastirma/son-duzenleme') !== false) {
+        $_GET['compare'] = 'son-duzenleme';
+    } elseif (strpos($reqPath, '/karsilastirma/latest') !== false) {
+        $_GET['compare'] = 'latest';
+    }
+}
 
 // Handle new reply
 if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create_reply') {
-    require_csrf();
     $content = $_POST['content'] ?? '';
     $parent_id = isset($_POST['parent_id']) ? (int)$_POST['parent_id'] : (int)$post_id;
     if ($parent_id <= 0) {
@@ -166,7 +189,6 @@ if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])
 
 // Handle like/unlike
 if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'toggle_like') {
-    require_csrf();
     $like_post_id = $_POST['post_id'] ?? 0;
     if ($like_post_id) {
         toggle_like($user_id, $like_post_id);
@@ -177,40 +199,21 @@ if ($user_id && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])
 }
 
 // Get the main post
-$post = get_post($post_id);
+$post = get_post($post_id, $user_id);
 
 if (!$post) {
-    // If the post was just deleted via a delete action, prefer redirecting
-    // the user back to their timeline or profile with a friendly flash.
-    $referer = $_SERVER['HTTP_REFERER'] ?? '';
-    $current_host = ($_SERVER['HTTP_HOST'] ?? '');
-    $redirect_target = '';
-    if ($referer) {
-        $r = parse_url($referer);
-        if (!empty($r['host']) && $r['host'] === $current_host && (!isset($r['path']) || $r['path'] !== ($_SERVER['REQUEST_URI'] ?? ''))) {
-            // If referer looks like a profile page, keep user there; otherwise send to referer
-            $redirect_target = $referer;
-        }
-    }
-    if (empty($redirect_target)) {
-        // Fallback: send to timeline
-        $redirect_target = BASE_PATH . '/index.php';
-    }
-    $_SESSION['flash'] = 'Gönderi silindi.';
-    header('Location: ' . $redirect_target);
+    ?>
+    <div class="main-container">
+        <div class="content-wrapper">
+            <h1 class="section-title">Gonderi Bulunamadi</h1>
+            <div class="empty-state">
+                <p>Aradiginiz gonderi mevcut degil veya silinmis.</p>
+            </div>
+        </div>
+    </div>
+    <?php
+    require_once __DIR__ . '/includes/footer.php';
     exit;
-}
-
-// If the server routed directly to post.php (without index.php shim), detect
-// friendly compare path segments in the request URI and populate $_GET['compare']
-// so downstream compare handling works for both '/latest' and '/son-duzenleme'.
-if (!isset($_GET['compare'])) {
-    $reqPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
-    if (strpos($reqPath, '/karsilastirma/son-duzenleme') !== false) {
-        $_GET['compare'] = 'son-duzenleme';
-    } elseif (strpos($reqPath, '/karsilastirma/latest') !== false) {
-        $_GET['compare'] = 'latest';
-    }
 }
 
 // Comparison view: if ?compare=latest or ?compare=<edit_id> is provided, render server-side diff
@@ -251,7 +254,7 @@ if ($compare) {
                         <?php endforeach; ?>
                         </ol>
                     <?php endif; ?>
-                    <?php $compare_home = htmlspecialchars(BASE_PATH . '/post/' . intval($post['id']) . '/karsilastirma/son-duzenleme', ENT_QUOTES, 'UTF-8'); ?>
+                    <?php $compare_home = htmlspecialchars(BASE_PATH . '/post/' . intval($post['id']) . '/karsilastirma/latest', ENT_QUOTES, 'UTF-8'); ?>
                     <p><a href="<?= $compare_home ?>">← Geri</a></p>
                 </div>
             </main>
@@ -269,6 +272,7 @@ if ($compare) {
         header('Location: ' . post_url($post['id']));
         exit;
     }
+
     // Only allow users who can view the post (same checks as below)
     $edit_row = null;
     if ($compare === 'latest' || $compare === 'son-duzenleme') {
@@ -285,17 +289,6 @@ if ($compare) {
         header('Location: ' . post_url($post['id']));
         exit;
     }
-    // Normalize legacy edit rows: if `previous_content`/`new_content` are empty but
-    // `original_content` exists (legacy schema), use that as the "previous" value
-    // and the current post content as the "new" value so diffs display.
-    $prev_content = $edit_row['previous_content'] ?? '';
-    $new_content = $edit_row['new_content'] ?? '';
-    if (trim((string)$prev_content) === '' && trim((string)$new_content) === '' && !empty($edit_row['original_content'])) {
-        $prev_content = $edit_row['original_content'];
-        $new_content = $post['content'] ?? '';
-    }
-    // Determine a friendly created/edited timestamp for display
-    $display_created_at = $edit_row['created_at'] ?? $edit_row['edited_at'] ?? $post['updated_at'] ?? '';
 
     require_once __DIR__ . '/includes/header.php';
     ?>
@@ -303,7 +296,7 @@ if ($compare) {
         <main class="content-area narrow">
             <div class="card-box padded">
                 <h2>Gönderi farkı — Önce / Sonra</h2>
-                <div class="muted small">Gönderi #: <?= (int)$post['id'] ?> · Düzenlendi: <?= htmlspecialchars($display_created_at) ?></div>
+                <div class="muted small">Gönderi #: <?= (int)$post['id'] ?> · Düzenlendi: <?= htmlspecialchars($edit_row['created_at']) ?></div>
                 <hr>
                 <?php $history_link = htmlspecialchars(BASE_PATH . '/post/' . intval($post['id']) . '/karsilastirma/history', ENT_QUOTES, 'UTF-8'); ?>
                 <div class="compare-actions" style="margin-bottom:12px">
@@ -321,11 +314,11 @@ if ($compare) {
                 <div class="diff-columns">
                     <div class="diff-col diff-old">
                         <h3>Önce</h3>
-                        <div class="diff-body"><?= render_diff_old_html($prev_content, $new_content) ?></div>
+                        <div class="diff-body"><?= render_diff_old_html($edit_row['previous_content'] ?? '', $edit_row['new_content'] ?? '') ?></div>
                     </div>
                     <div class="diff-col diff-new">
                         <h3>Sonra</h3>
-                        <div class="diff-body"><?= render_diff_new_html($prev_content, $new_content) ?></div>
+                        <div class="diff-body"><?= render_diff_new_html($edit_row['previous_content'] ?? '', $edit_row['new_content'] ?? '') ?></div>
                     </div>
                 </div>
                 <p><a href="<?= post_url($post['id']) ?>">← Geri</a></p>
@@ -381,7 +374,7 @@ $highlight_id = isset($_GET['highlight']) ? (int)$_GET['highlight'] : 0;
         </div>
     </aside>
 
-    <main class="content-area form-centered">
+    <main id="content" class="content-area form-centered" role="main">
         <h1 class="section-title">Gonderi</h1>
 
         <!-- Main Post -->

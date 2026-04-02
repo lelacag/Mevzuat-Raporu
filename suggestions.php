@@ -39,7 +39,6 @@ $suggestions = get_friend_suggestions($user_id, 50);
 
                         <div class="actions">
                             <form method="POST" action="<?= BASE_PATH ?>/api/follow.php" style="margin:0;">
-                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generate_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                                 <input type="hidden" name="following_id" value="<?= $s['id'] ?>">
                                 <input type="hidden" name="referer" value="<?= htmlspecialchars($_SERVER['REQUEST_URI']) ?>">
                                 <button class="follow-btn-compact" type="submit">kuyruk</button>

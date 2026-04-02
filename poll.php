@@ -85,7 +85,6 @@ if ($edit_poll_id) {
 
 // Build options array state (persist across add_option submissions)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    require_csrf();
     $options = [];
     error_log('poll.php POST start user=' . intval($user_id) . ' group=' . (isset($group['id']) ? intval($group['id']) : 'none'));
     try {

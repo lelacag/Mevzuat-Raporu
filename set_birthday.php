@@ -26,7 +26,6 @@ if (!empty($user['birthday'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    require_csrf();
     $birthday = trim($_POST['birthday'] ?? '');
     
     if (empty($birthday)) {
@@ -97,7 +96,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <form method="POST">
-        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
         <div class="birthday-form-group">
             <label for="birthday">📅 Doğum Tarihiniz</label>
             <input 

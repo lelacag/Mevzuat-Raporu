@@ -66,16 +66,6 @@ if ($bearer) {
     $user_id = $auth_user_id;
 }
 
-// CSRF protection for session-authenticated requests (bearer token callers use token auth)
-if (empty($bearer)) {
-    $token = $data['csrf_token'] ?? ($_POST['csrf_token'] ?? null);
-    if (empty($token) || !verify_csrf_token($token)) {
-        http_response_code(400);
-        echo json_encode(['error' => 'invalid_csrf']);
-        exit;
-    }
-}
-
 // Basic payloads
 $purchase_token = $data['purchase_token'] ?? '';
 $receipt_base64 = $data['receipt_base64'] ?? '';

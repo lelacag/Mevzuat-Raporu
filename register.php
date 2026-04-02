@@ -52,9 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['login_submit'])) {
     } else {
 
         /* ---- Gather & sanitise inputs ---------------------------- */
-        $username      = trim($_POST['username'] ?? '');
+        $username      = sanitize_input($_POST['username'] ?? '');
         $password      = $_POST['password'] ?? '';
-        $email         = mb_strtolower(trim($_POST['email'] ?? ''));
+        $email         = mb_strtolower(sanitize_input($_POST['email'] ?? ''));
         $captcha_input = $_POST['captcha'] ?? '';
         $captcha_token = $_POST['captcha_token'] ?? '';
         $identifier    = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
@@ -145,9 +145,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['login_submit'])) {
                     $verification_url = full_url(BASE_PATH . '/verify_email.php?token=' . urlencode($verification_token));
 
                     $subject = 'E-posta Doğrulama - ' . SITE_NAME;
-                    $message = "Merhaba " . $username . ",\n\n";
-                    $message .= SITE_NAME . " platformuna hoş geldiniz! Hesabınızı aktifleştirmek için lütfen aşağıdaki bağlantıya tıklayın: " . $verification_url . "\n\n";
-                    $message .= "Bu bağlantı 24 saat geçerlidir. İyi günler!";
+                    $message = "Merhaba " . htmlspecialchars($username) . ",\n\n";
+                    $message .= SITE_NAME . " platformuna hoş geldiniz!\n\n";
+                    $message .= "Hesabınızı aktifleştirmek için lütfen aşağıdaki bağlantıya tıklayın:\n\n";
+                    $message .= $verification_url . "\n\n";
+                    $message .= "Bu bağlantı 24 saat geçerlidir.\n\n";
+                    $message .= "İyi günler!";
 
                     if (defined('MAIL_ENABLED') && MAIL_ENABLED) {
                         $mail_sent = send_email($email, $subject, $message);

@@ -98,9 +98,32 @@ if (!can_edit_post($user_id, $post_id)) {
                         <span class="badge-pill color-2ecc71">#<?= $post_id ?></span>
                         <span class="ml-10">@<?= htmlspecialchars($post['username']) ?></span>
                     </div>
-                </div>
-                
+                    <?php if (!empty($post['scheduled_at'])): ?>
+                    <?php $now = time(); $scheduled_ts = strtotime($post['scheduled_at']); ?>
+                    <?php if ($scheduled_ts > $now): ?>
+                        <div style="margin-top:8px; font-size:12px;">
+                            <strong>Planlanmış Yayın Tarihi:</strong> <?= htmlspecialchars(format_time($post['scheduled_at'])) ?>
+                        </div>
+                    </div>
+
+                    <div class="post-schedule-edit" style="margin-bottom: 12px; padding: 12px; border:1px solid #eee; border-radius:4px; background: #fff;">
+                        <label for="scheduled_at" style="font-size:13px; font-weight:600;">Planlama Tarihi (düzenle)</label>
+                        <input id="scheduled_at" type="datetime-local" name="scheduled_at" class="input-full" value="<?= htmlspecialchars(date('Y-m-d\TH:i', $scheduled_ts)) ?>" />
+                        <small style="color:#666;">Boş bırakılırsa mevcut planlama korunur.</small>
+                    </div>
+
+                    <textarea name="content" id="content" rows="8" required placeholder="Gönderinizi buraya yazın..." class="input-full textarea-large"><?= htmlspecialchars($post['content']) ?></textarea>
+                    <?php goto edit_form_render; ?>
+                    <?php elseif ($scheduled_ts <= $now): ?>
+                        <div style="margin-top:8px; font-size:12px; padding:10px; border:1px solid #eee; border-radius:4px; background:#f9f9f9;">
+                            <strong>Bu gönderi programlı olarak yayınlanmıştı.</strong><br>
+                            Yayın tarihi: <?= htmlspecialchars(format_time($post['scheduled_at'])) ?>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
+
                 <textarea name="content" id="content" rows="8" required placeholder="Gönderinizi buraya yazın..." class="input-full textarea-large"><?= htmlspecialchars($post['content']) ?></textarea>
+                <?php edit_form_render: ?>
                 
                 <div class="post-form-actions">
                     <span class="char-count">

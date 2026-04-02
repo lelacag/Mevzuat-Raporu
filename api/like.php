@@ -10,15 +10,6 @@ if (!$user_id) {
     exit;
 }
 
-// CSRF protection
-if (empty($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token'])) {
-    $_SESSION['flash_error'] = 'Geçersiz istek (CSRF).';
-    $referer = $_POST['referer'] ?? $_SERVER['HTTP_REFERER'] ?? (BASE_PATH . '/index.php');
-    $referer = validate_referer($referer, BASE_PATH . '/index.php', false);
-    header('Location: ' . $referer);
-    exit;
-}
-
 $post_id = $_POST['post_id'] ?? $_GET['post_id'] ?? 0;
 $referer = $_POST['referer'] ?? $_SERVER['HTTP_REFERER'] ?? (BASE_PATH . '/index.php');
 $referer = validate_referer($referer, BASE_PATH . '/index.php', false);

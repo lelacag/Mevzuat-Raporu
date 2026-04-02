@@ -9,11 +9,8 @@ foreach ($poll['options'] as $o) { $total_votes += (int)$o['votes_count']; }
         $title = trim($poll['title'] ?? '');
         // raw post content may serve as description/question inside the box
         $post_raw = '';
-        if (isset($post) && !empty($post['content'])) {
-            $post_raw = $post['content'];
-        }
-        // For group posts, we intentionally do not inject $gp['content'] here
-        // to avoid duplicating group post text inside poll post block.
+        if (isset($post) && !empty($post['content'])) $post_raw = $post['content'];
+        if (isset($gp) && !empty($gp['content'])) $post_raw = $gp['content'];
         $post_text = trim(strip_tags($post_raw));
         // Determine whether to show title: if post content starts with title (we used Açıklama as title) hide it to avoid duplication
         $show_title = true;
@@ -85,13 +82,16 @@ foreach ($poll['options'] as $o) { $total_votes += (int)$o['votes_count']; }
                 <input type="hidden" name="poll_id" value="<?= (int)$poll['id'] ?>">
                 <input type="hidden" name="referer" value="<?= htmlspecialchars($_SERVER['REQUEST_URI']) ?>">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? generate_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
-                <?php foreach ($poll['options'] as $opt): ?>
-                    <div class="test-option poll-option">
-                        <label>
-                            <input type="radio" name="option_id" value="<?= (int)$opt['id'] ?>"> <?= htmlspecialchars($opt['text']) ?>
-                        </label>
-                    </div>
-                <?php endforeach; ?>
+                <fieldset>
+                    <legend class="sr-only">Anket seçenekleri</legend>
+                    <?php foreach ($poll['options'] as $opt): ?>
+                        <div class="test-option poll-option">
+                            <label>
+                                <input type="radio" name="option_id" value="<?= (int)$opt['id'] ?>"> <?= htmlspecialchars($opt['text']) ?>
+                            </label>
+                        </div>
+                    <?php endforeach; ?>
+                </fieldset>
                 <div style="margin-top:8px;">
                     <button type="submit" class="btn-post">Oy Ver</button>
                 </div>

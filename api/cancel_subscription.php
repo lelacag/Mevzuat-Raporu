@@ -12,13 +12,6 @@ if (!$user_id) {
     exit;
 }
 
-// CSRF protection for POST actions
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && (empty($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token']))) {
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'invalid_csrf']);
-    exit;
-}
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ' . BASE_PATH . '/premium.php');
     exit;

@@ -183,6 +183,13 @@ if ($current_user_id) {
     <!-- allow individual pages to add extra <head> markup (styles, scripts) -->
     <?php if (!empty($extra_head)) { echo $extra_head; } ?>
 
+    <style>
+    /* Accessibility helpers: skip link and screen-reader text */
+    .skip-link{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+    .skip-link:focus{position:static;left:0;top:0;width:auto;height:auto;padding:8px 12px;background:#fff59d;color:#000;z-index:9999}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    </style>
+
     <!-- Site-wide feeds -->
     <link rel="alternate" type="application/rss+xml" title="<?= htmlspecialchars(SITE_NAME . ' - RSS', ENT_QUOTES, 'UTF-8') ?>" href="<?= BASE_PATH ?>/rss.php">
     <link rel="alternate" type="application/rss+xml" title="<?= htmlspecialchars(SITE_NAME . ' - RSS (xml)', ENT_QUOTES, 'UTF-8') ?>" href="<?= BASE_PATH ?>/rss.xml">
@@ -257,6 +264,7 @@ if (!empty($extra_body_classes)) {
 $body_attr = $body_classes ? ' class="' . implode(' ', $body_classes) . '"' : '';
 ?>
 <body<?= $body_attr ?>>
+    <a href="#content" class="skip-link">İçeriğe atla</a>
 <?php if (!empty($_GET['debug_header'])): ?>
     <!-- SCRIPT_NAME: <?= htmlspecialchars($script_name, ENT_QUOTES) ?> REQUEST_URI: <?= htmlspecialchars($request_path, ENT_QUOTES) ?> -->
 <?php endif; ?>
@@ -298,7 +306,7 @@ $body_attr = $body_classes ? ' class="' . implode(' ', $body_classes) . '"' : ''
                         <img src="<?= BASE_PATH ?>/assets/logo-green.svg?v=<?= $logo_ver ?>" alt="logo" class="site-logo">
                         <span class="logo-text">
                             <span class="site-name"><?= SITE_NAME ?></span>
-                            <span class="logo-version">deneme sürüm 1.01</span>
+                            <span class="logo-version">deneme sürüm 1.1</span>
                         </span>
                     </a>
                 </div>
@@ -334,7 +342,12 @@ $body_attr = $body_classes ? ' class="' . implode(' ', $body_classes) . '"' : ''
                     <?php endif; ?>
 
                     <div class="user-menu">
-                        <a href="<?= user_url($current_user['username']) ?>" class="header-username">@<?= htmlspecialchars($current_user['username']) ?></a>
+                        <?php
+                    $current_username = is_array($current_user) && !empty($current_user['username']) ? $current_user['username'] : '';
+                    if ($current_username):
+                    ?>
+                        <a href="<?= user_url($current_username) ?>" class="header-username">@<?= htmlspecialchars($current_username) ?></a>
+                    <?php endif; ?>
                         <a href="<?= $logout_link ?>">Çıkış</a>
                     </div>
                 <?php else: ?>
@@ -431,13 +444,13 @@ $body_attr = $body_classes ? ' class="' . implode(' ', $body_classes) . '"' : ''
 
     // Global flash area (shows green success or red error messages under the header, above page content)
     if (!empty($_SESSION['flash']) || !empty($_SESSION['flash_error'])) {
-        echo '<div class="global-flash-area">';
+        echo '<div class="global-flash-area" aria-live="polite">';
         if (!empty($_SESSION['flash'])) {
-            echo '<div class="flash flash-success">' . $_SESSION['flash'] . '</div>';
+            echo '<div class="flash flash-success" role="status" aria-live="polite">' . $_SESSION['flash'] . '</div>';
             unset($_SESSION['flash']);
         }
         if (!empty($_SESSION['flash_error'])) {
-            echo '<div class="flash flash-error">' . htmlspecialchars($_SESSION['flash_error']) . '</div>';
+            echo '<div class="flash flash-error" role="alert">' . htmlspecialchars($_SESSION['flash_error']) . '</div>';
             unset($_SESSION['flash_error']);
         }
         echo '</div>';

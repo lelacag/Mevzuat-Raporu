@@ -182,7 +182,6 @@ $is_suspended = false;
 // Handle follow/unfollow and post creation
 $skip_create = false;
 if ($current_user_id && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    require_csrf();
     // Insert tag helper (no-JS buttons submit here)
     if (isset($_POST['insert_tag'])) {
         $draft = $_POST['content'] ?? get_draft($current_user_id);
@@ -202,7 +201,7 @@ if ($current_user_id && $_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Preview request
-    if (isset($_POST['action']) && $_POST['action'] === 'preview') {
+    if (isset($_POST['preview'])) {
         $preview_content = $_POST['content'] ?? get_draft($current_user_id);
         if (trim($preview_content) === '') {
             $preview_error = 'Önizlemek için içerik gerekli.';
@@ -224,12 +223,22 @@ if ($current_user_id && $_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($content)) {
             $errors[] = 'Gönderi içeriği boş olamaz.';
         } else {
-            $res = create_post($current_user_id, $content);
+            $scheduled_at = trim($_POST['scheduled_at'] ?? '');
+            if ($scheduled_at === '') { $scheduled_at = null; }
+            $res = create_post($current_user_id, $content, null, $scheduled_at);
             if (isset($res['error'])) {
                 if ($res['error'] === 'suspended') {
                     $errors[] = 'Hesabınız geçici olarak yasaklıdır (süresince: ' . htmlspecialchars($res['until']) . ').';
                 } elseif ($res['error'] === 'limit_exceeded') {
                     $errors[] = $res['message'];
+                } elseif ($res['error'] === 'scheduled_at_invalid') {
+                    $errors[] = 'Geçersiz zamanlanmış tarih/saat.';
+                } elseif ($res['error'] === 'scheduled_at_past') {
+                    $errors[] = 'Zamanlanmış zaman geçmiş olamaz.';
+                } elseif ($res['error'] === 'scheduled_at_too_far') {
+                    $errors[] = 'Zamanlanmış zaman çok uzakta (en fazla 1 yıl).';
+                } elseif ($res['error'] === 'premium_required_scheduled_post') {
+                    $errors[] = 'Zamanlı gönderiler sadece premium kullanıcılar için.';
                 } else {
                     $errors[] = 'Gönderi oluşturulamadı.';
                 }
@@ -391,7 +400,6 @@ $badges = get_user_badges($profile_user_id);
                     <div class="profile-action-buttons">
                         <?php if (!$is_own_profile && $current_user_id): ?>
                             <form method="POST" class="inline-form">
-                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
                                 <input type="hidden" name="action" value="follow">
                                 <button type="submit" class="follow-btn-compact <?= $is_following ? 'following' : '' ?>">
                                     <?= $is_following ? 'kuyruğu bırak' : 'kuyruk' ?>
@@ -409,7 +417,6 @@ $badges = get_user_badges($profile_user_id);
                                 </form>
                             <?php else: ?>
                                 <form method="POST" action="<?= BASE_PATH ?>/api/admin_unsuspend_user.php" class="inline-form">
-                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
                                     <input type="hidden" name="user_id" value="<?= $profile_user_id ?>">
                                     <button type="submit" class="btn-compact">Kaldır</button>
                                 </form>
@@ -474,7 +481,7 @@ $badges = get_user_badges($profile_user_id);
                         <!-- insert-helpers removed: helper mini-forms were intentionally removed to simplify composer UI -->
 
                         <form method="POST" class="post-form" id="composer-form">
-                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
+                            <input type="hidden" name="action" value="create_post">
                             <div class="post-toolbar" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
                                 <div style="display:flex;gap:6px;">
                                     <button type="submit" name="insert_type" value="tag" class="btn-small">#</button>
@@ -493,6 +500,13 @@ $badges = get_user_badges($profile_user_id);
                             <?php $prefill = !$is_own_profile ? '@' . htmlspecialchars($profile_user['username']) . ' ' : ''; ?>
                             <textarea name="content" placeholder="bugün ne düşünüyorsun?" required><?= sanitize_input($_POST['content'] ?? get_draft($current_user_id)) ?></textarea>
 
+                            <?php if (is_user_premium($current_user_id) || is_admin()): ?>
+                                <div style="margin:8px 0; display:flex; gap:8px; align-items:center;">
+                                    <label for="scheduled_at" style="margin:0;font-size:0.9em;">⏰ Zamanla:</label>
+                                    <input id="scheduled_at" type="datetime-local" name="scheduled_at" value="<?= htmlspecialchars($_POST['scheduled_at'] ?? '') ?>" />
+                                </div>
+                            <?php endif; ?>
+
                             <?php if (!empty($preview_html)): ?>
                                 <div class="post-preview" style="border:1px solid #eee;padding:12px;margin-top:8px;background:#fafafa;"><?= $preview_html ?></div>
                             <?php endif; ?>
@@ -507,8 +521,8 @@ $badges = get_user_badges($profile_user_id);
                                     <span class="char-count">En fazla <?= MAX_POST_LENGTH ?> karakter</span>
                                 <?php endif; ?>
                                 <div class="post-actions-buttons">
-                                    <button type="submit" name="action" value="preview" class="btn-outline">Önizleme</button>
-                                    <button type="submit" name="action" value="create_post" class="btn-post">Paylaş</button>
+                                    <button type="submit" name="preview" value="1" class="btn-outline" <?php if (trim((string)($_POST['content'] ?? get_draft($current_user_id))) === '') echo 'disabled'; ?>>Önizleme</button>
+                                    <button type="submit" class="btn-post">Paylaş</button>
                                 </div>
                             </div>
                         </form>

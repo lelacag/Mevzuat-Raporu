@@ -26,10 +26,6 @@ if (!verify_csrf_token($csrf_token)) {
 
 $group_id = intval($_POST['group_id'] ?? 0);
 $redirect = $_POST['redirect'] ?? 'groups.php';
-$redirect = trim(rawurldecode($redirect), "\/");
-if ($redirect === '') {
-    $redirect = 'groups.php';
-}
 
 if (!$group_id) {
     header('Location: ' . BASE_PATH . '/groups.php');

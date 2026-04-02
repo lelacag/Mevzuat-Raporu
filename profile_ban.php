@@ -23,7 +23,6 @@ if (!$profile_user) {
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    require_csrf();
     $action = $_POST['action'] ?? '';
     $target_id = intval($_POST['user_id'] ?? 0);
     if ($action === 'ban' && $target_id) {
@@ -57,7 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST">
-            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
             <input type="hidden" name="user_id" value="<?= $profile_user['id'] ?>">
             <div class="form-row">
                 <label>

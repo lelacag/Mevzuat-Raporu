@@ -14,13 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// CSRF protection
-if (empty($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token'])) {
-    $_SESSION['flash_error'] = 'Geçersiz istek (CSRF).';
-    header("Location: " . BASE_PATH . "/premium.php");
-    exit;
-}
-
 $plan_type = $_POST['plan_type'] ?? 'yearly';
 $email = $_POST['email'] ?? '';
 

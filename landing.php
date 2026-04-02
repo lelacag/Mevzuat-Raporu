@@ -32,9 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['login_submit'])) {
     if (!isset($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token'])) {
         $errors[] = 'Geçersiz istek. Lütfen tekrar deneyin.';
     } else {
-        $username      = trim($_POST['username'] ?? '');
+        $username      = sanitize_input($_POST['username'] ?? '');
         $password      = $_POST['password'] ?? '';
-        $email         = trim($_POST['email'] ?? '');
+        $email         = sanitize_input($_POST['email'] ?? '');
         $captcha_input = $_POST['captcha'] ?? '';
         $captcha_token = $_POST['captcha_token'] ?? '';
         $identifier    = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
@@ -101,9 +101,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['login_submit'])) {
                         $verification_url = full_url(BASE_PATH . '/verify_email.php?token=' . urlencode($verification_token));
 
                         $subject = 'E-posta Doğrulama - ' . SITE_NAME;
-                        $message = "Merhaba " . $username . ",\n\n";
-                        $message .= SITE_NAME . " platformuna hoş geldiniz! Hesabınızı aktifleştirmek için lütfen aşağıdaki bağlantıya tıklayın: " . $verification_url . "\n\n";
-                        $message .= "Bu bağlantı 24 saat geçerlidir. İyi günler!";
+                        $message = "Merhaba " . htmlspecialchars($username) . ",\n\n";
+                        $message .= SITE_NAME . " platformuna hoş geldiniz!\n\n";
+                        $message .= "Hesabınızı aktifleştirmek için lütfen aşağıdaki bağlantıya tıklayın:\n\n";
+                        $message .= $verification_url . "\n\n";
+                        $message .= "Bu bağlantı 24 saat geçerlidir.\n\n";
+                        $message .= "İyi günler!";
 
                         if (defined('MAIL_ENABLED') && MAIL_ENABLED) {
                             $mail_sent = send_email($email, $subject, $message);
@@ -128,6 +131,250 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['login_submit'])) {
     
     $csrf_token = generate_csrf_token();
 ?>
+<?php if ($_SERVER['REQUEST_URI'] == '/ascii'): ?>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= SITE_NAME ?> - ASCII Landing</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 32px 16px;
+            background: #fff;
+            color: #000;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .ascii-block {
+            width: 100%;
+            max-width: 82ch;
+        }
+
+        pre.ascii-box {
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.4;
+            white-space: pre;
+            overflow-x: auto;
+            margin: 0;
+            padding: 0;
+            background: #fff;
+            color: #000;
+            border: none;
+        }
+
+        .ascii-form-section {
+            width: 100%;
+            border-top: 1px solid #aaa;
+            margin-top: 0;
+            padding: 20px 0 0 0;
+        }
+
+        .ascii-form-section h2 {
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0 0 6px 0;
+            letter-spacing: 0.05em;
+        }
+
+        .ascii-form-section p {
+            font-size: 13px;
+            margin: 0 0 16px 0;
+        }
+
+        .ascii-form-section .field-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 8px;
+        }
+
+        .ascii-form-section .field-label {
+            width: 18ch;
+            flex-shrink: 0;
+            font-size: 13px;
+        }
+
+        .ascii-form-section input[type="text"],
+        .ascii-form-section input[type="email"],
+        .ascii-form-section input[type="password"] {
+            font-family: inherit;
+            font-size: 13px;
+            color: #000;
+            background: #fff;
+            border: 1px solid #000;
+            padding: 4px 8px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ascii-form-section .form-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .ascii-form-section button[type="submit"] {
+            font-family: inherit;
+            font-size: 13px;
+            background: #000;
+            color: #fff;
+            border: 1px solid #000;
+            padding: 6px 20px;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+        }
+
+        .ascii-form-section button[type="submit"]:hover {
+            background: #333;
+        }
+
+        .ascii-form-section a {
+            color: #000;
+            font-size: 13px;
+        }
+
+        .ascii-alerts { margin-bottom: 12px; font-size: 13px; }
+        .ascii-alerts .err { color: #c00; }
+        .ascii-alerts .ok  { color: #060; }
+
+        .ascii-footer {
+            margin-top: 24px;
+            font-size: 12px;
+            color: #444;
+            border-top: 1px solid #aaa;
+            padding-top: 12px;
+        }
+
+        .ascii-footer a { color: #444; }
+    </style>
+</head>
+<body>
+<div class="ascii-block">
+<pre class="ascii-box">
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║                            MEVZUAT RAPORU                                    ║
+║                                                                              ║
+║              RAHAT  •  GURULTUSUZ  •  YERLI MALI SOSYAL MEDYA               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+  Hos geldiniz!
+
+  Mevzuat Raporu, gereksiz gurultu icermeyen, kisisel verilerinizi cope
+  atmayan, ucuncu sahislara satmayan bir platformdur.
+
+  Yerli mali, yurdun mali anlayisi ile herkesin rahatlıkla kullanabilecegi
+  bir alan yaratmak istedik.
+
+  www.mevzuatraporu.com
+
+════════════════════════════════════════════════════════════════════════════════
+  SON PAYLAŞIMLAR
+════════════════════════════════════════════════════════════════════════════════
+<?php if (empty($landing_posts)): ?>
+  Henuz gonderi yok. Giris yap ve ilk gonderini paylas!
+<?php else: ?>
+<?php foreach ($landing_posts as $post):
+    $content = strip_tags(render_rich_text($post['content']));
+    $content = preg_replace('/\s+/', ' ', trim($content));
+    $content = wordwrap($content, 74, "\n  ", false);
+?>
+  [@<?= htmlspecialchars($post['username']) ?>]
+  <?= $content ?>
+
+  [ likes: <?= $post['like_count'] ?>  |  comments: <?= $post['comment_count'] ?> ]
+
+────────────────────────────────────────────────────────────────────────────────
+<?php endforeach; ?>
+<?php endif; ?>
+
+════════════════════════════════════════════════════════════════════════════════
+  NEDEN MEVZUAT RAPORU?
+════════════════════════════════════════════════════════════════════════════════
+  [*] Tamamen JavaScript'siz
+  [*] Takip edilmiyorsunuz
+  [*] Verileriniz satilmiyor
+  [*] Sade ve hızlı
+  [*] Turk yapimi
+
+════════════════════════════════════════════════════════════════════════════════
+  (C) 2026 Mevzuat Raporu  |  Her sey metin tabanli. Daha fazlasina gerek yok.
+════════════════════════════════════════════════════════════════════════════════
+</pre>
+
+<div class="ascii-form-section">
+    <h2>[ HEMEN KATIL ]</h2>
+    <p>Hesap olusturmak cok basit. Formu doldurarak uye olabilirsiniz.</p>
+
+    <?php if (!empty($errors)): ?>
+    <div class="ascii-alerts">
+        <?php foreach ($errors as $error): ?>
+        <div class="err">  [!] <?= htmlspecialchars($error) ?></div>
+        <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+
+    <?php if ($success): ?>
+    <div class="ascii-alerts">
+        <div class="ok">  [OK] Kayit basarili! E-posta adresinizi kontrol edin.</div>
+    </div>
+    <?php else: ?>
+    <?php
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+    $country = get_country_by_ip($ip);
+    if ($country === 'TR' || is_country_open($country)):
+    ?>
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
+        <div class="field-row">
+            <span class="field-label">Kullanici Adi :</span>
+            <input type="text" name="username" required autocomplete="username">
+        </div>
+        <div class="field-row">
+            <span class="field-label">E-posta       :</span>
+            <input type="email" name="email" required autocomplete="email">
+        </div>
+        <div class="field-row">
+            <span class="field-label">Sifre         :</span>
+            <input type="password" name="password" required autocomplete="new-password">
+        </div>
+        <?php render_captcha(); ?>
+        <div class="form-actions">
+            <button type="submit" name="sign-up">[ KAYIT OL ]</button>
+            <a href="<?= BASE_PATH ?>/login.php">Zaten hesabin var mi? Giris yap</a>
+        </div>
+    </form>
+    <?php else: ?>
+    <div class="ascii-alerts">
+        <div class="err">  [!] Bu ulkeden (<?= htmlspecialchars($country) ?>) dogrudan kayit alinmamaktadir.</div>
+    </div>
+    <p><a href="<?= BASE_PATH ?>/signup_request.php">Kayit talebi olusturmak icin tiklayin</a></p>
+    <?php endif; ?>
+    <?php endif; ?>
+</div>
+
+<div class="ascii-footer">
+    <a href="<?= privacy_url() ?>">Gizlilik</a> &nbsp;|&nbsp;
+    <a href="<?= rules_url() ?>">Kurallar</a> &nbsp;|&nbsp;
+    <a href="<?= kvkk_url() ?>">KVKK</a> &nbsp;|&nbsp;
+    <a href="<?= BASE_PATH ?>">Ana Sayfa</a>
+</div>
+</div>
+</body>
+</html>
+<?php else: ?>
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -148,7 +395,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['login_submit'])) {
                         <img src="<?= BASE_PATH ?>/assets/logo-green.svg?v=<?= $logo_ver ?>" alt="logo" class="site-logo">
                         <span class="logo-text">
                             <span class="site-name"><?= SITE_NAME ?></span>
-                            <span class="logo-version">deneme sürüm 1.01</span>
+                            <span class="logo-version">deneme sürüm 1.1</span>
                         </span>
                     </a>
                 </div>
@@ -162,7 +409,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['login_submit'])) {
                         <?php unset($_SESSION['login_error']); ?>
                     <?php endif; ?>
                     <form action="<?= BASE_PATH ?>/api/login.php" method="POST"> <!-- API endpoint remains php -->
-                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
                         <?php if (!empty($_GET['reject_cookies'])): ?>
                             <input type="hidden" name="reject_cookies" value="1">
                             <div style="color:#e67e22;font-size:12px;margin-bottom:6px;">Bu oturum için çerez kullanmadan siteyi kullanmayı seçtiniz.</div>
@@ -193,7 +439,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['login_submit'])) {
             <!-- Posts Section -->
             <div class="content-item posts-section">
                 <div class="help-heading">
-                    <h2><?= SITE_NAME ?> rahat bir sosyal medya platformudur. Gürültü içermez, kişisel bilgilerinizi çöp etmez ve üçüncü, dördüncü kişilere
+                    <h2><?= SITE_NAME ?> rahat bir sosyal medya platformudur. Gereksiz gürültü içermez, kişisel bilgilerinizi çarçur etmez ve üçüncü, dördüncü kişilere
          satmaz. Yerli malı, yurdun malı herkes onu kullanmalı anlayışıyla başlamıştır. Hoş geldiniz!</h2>
                 </div>
                 <div class="posts-feed">
@@ -223,7 +469,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['login_submit'])) {
             <!-- Registration Section -->
             <div class="content-item registration-section">
                 <div class="main-heading">
-                    <h2>Hesap kayıt işleri için buradan devam</h2>
+                    <h2>Hesap kayıt işlerin için buradan devam</h2>
                     <h3> Formu doldurarak kolay bir şekilde üye olabilirsiniz</h3>
                 </div>
 
@@ -290,6 +536,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['login_submit'])) {
                     <li><a href="<?= privacy_url() ?>">Gizlilik</a></li>
                     <li><a href="<?= kvkk_url() ?>">KVKK</a></li>
                     <li><a href="<?= cookie_policy_url() ?>">Çerezler</a></li>
+                    <li><a href="<?= BASE_PATH ?>/ascii_landing.php">ASCII Landing</a></li>
                     <?php if (is_admin()): ?>
                         <li><a href="<?= BASE_PATH ?>/admin/">Yönetim</a></li>
                     <?php endif; ?>
@@ -303,3 +550,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['login_submit'])) {
     <!-- FOOTER SECTION END -->
 </body>
 </html>
+<?php endif; ?>

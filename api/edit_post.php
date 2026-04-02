@@ -8,20 +8,15 @@ if (!$user_id) {
     exit;
 }
 
-// CSRF protection
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && (empty($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token']))) {
-    $_SESSION['flash_error'] = 'Geçersiz istek (CSRF).';
-    $redirect = BASE_PATH . '/edit_post.php?id=' . intval($_POST['post_id'] ?? 0);
-    header('Location: ' . $redirect);
-    exit;
-}
-
 $post_id = intval($_POST['post_id'] ?? 0);
 $return_id = isset($_POST['return_id']) ? (int)$_POST['return_id'] : null;
 $new_content = $_POST['content'] ?? '';
 
+$scheduled_at = trim($_POST['scheduled_at'] ?? '');
+if ($scheduled_at === '') { $scheduled_at = null; }
+
 if ($post_id && !empty($new_content)) {
-    $result = edit_post($user_id, $post_id, $new_content);
+    $result = edit_post($user_id, $post_id, $new_content, $scheduled_at);
     
     if (isset($result['error'])) {
         if ($result['error'] === 'premium_required') {

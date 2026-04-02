@@ -18,16 +18,6 @@ $data = json_decode(file_get_contents('php://input'), true);
 $user_id = $_SESSION['user_id'];
 $district_id = isset($data['district_id']) ? intval($data['district_id']) : 0;
 
-// CSRF protection for JSON POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $token = $data['csrf_token'] ?? ($_POST['csrf_token'] ?? null);
-    if (empty($token) || !verify_csrf_token($token)) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'error' => 'invalid_csrf']);
-        exit;
-    }
-}
-
 if (!$district_id) {
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'District ID required']);

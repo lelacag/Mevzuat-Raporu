@@ -42,19 +42,19 @@ Alternatively, manual steps are:
 # move into the project directory
 cd /srv/www/mevzuatraporu
 
-# 1. start PHP's built-in web server
-php -S localhost:8000 -t . > /tmp/phpout.log 2>&1 &
+# 1. start PHP's built-in web server with router support for clean URLs
+php -S localhost:8081 dev-router.php > /tmp/phpout.log 2>&1 &
 # record its PID for later shutdown
 echo $! > /tmp/phpserverpid
 
 # 2. (optional) expose the site via ngrok
-ngrok http 8000
+ngrok http 8081
 
 # 3. verify it's up
-curl -I http://127.0.0.1:8000/index.php
+curl -I http://127.0.0.1:8081/topluluklar
 ``` 
 
-*Note*: the built-in server does **not** support URL rewriting, so `USE_CLEAN_URLS` must be disabled when you use it.
+*Note*: the built-in server does **not** support Apache-style `.htaccess` rewriting by default, so we provide `dev-router.php` in this repo to enable clean URL paths like `/topluluklar`, `/bildirimler`, `/davet-et`, `/edmin`.
 
 If you prefer using Apache:
 

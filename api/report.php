@@ -6,16 +6,9 @@ require_once '../includes/auth.php';
 $reporter_id = get_current_user_id(); // may be null
 $target_type = $_POST['target_type'] ?? '';
 $target_id = intval($_POST['target_id'] ?? 0);
-$reason = trim($_POST['reason'] ?? null);
+$reason = sanitize_input($_POST['reason'] ?? null);
 $referer = $_POST['referer'] ?? $_SERVER['HTTP_REFERER'] ?? (BASE_PATH . '/index.php');
 $referer = validate_referer($referer, BASE_PATH . '/index.php', false);
-
-// CSRF protection: require valid token when reporter is logged in
-if (!empty($_POST) && (!isset($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token']))) {
-    $_SESSION['flash_error'] = 'Geçersiz istek (CSRF).';
-    header('Location: ' . $referer);
-    exit;
-}
 
 if (!in_array($target_type, ['post', 'reply', 'group_post'])) {
     header('Location: ' . $referer);

@@ -19,6 +19,9 @@
                     if ($poster && isset($poster['role']) && $poster['role'] === 'rookie' && empty($poster['is_approved'])): ?>
                     <span class="badge badge-rookie">Yeni Gelen</span>
                 <?php endif; ?>
+                <?php if (!empty($post['scheduled_at']) && strtotime($post['scheduled_at']) > time()): ?>
+                    <span class="badge badge-info">⏰ Programlı: <?= htmlspecialchars(format_time($post['scheduled_at'])) ?></span>
+                <?php endif; ?>
                 <?php
                     $pb = get_user_custom_badge($post['user_id'] ?? null);
                     if ($pb && !empty($pb['badge_text'])):
@@ -49,9 +52,9 @@
                             $compare_link = htmlspecialchars(BASE_PATH . '/post/' . intval($post['id']) . '/karsilastirma/son-duzenleme', ENT_QUOTES, 'UTF-8');
                             echo ' <a class="post-card-edited" href="' . $compare_link . '">' . $label . '</a>';
                         } else {
-                            // For non-owners, show plain text (not linked)
                             echo ' <span class="post-card-edited">' . $label . '</span>';
                         }
+                        // history link removed from timeline; shown on compare page instead
                     }
                 ?>
             </div>
@@ -106,7 +109,7 @@
                 💬 <?= $post['comment_count'] ?? 0 ?> Yorum
             </a>
             <?php if ($current_user_id == $post['user_id'] && empty($post['poll']) && empty($post['test'])): ?>
-                <a href="<?= edit_post_url($post['id']) ?>" class="post-action edit-btn">
+                <a href="<?= BASE_PATH ?>/edit_post.php?id=<?= $post['id'] ?>" class="post-action edit-btn">
                     ✏️ Düzenle
                 </a>
                 <a href="<?= BASE_PATH ?>/delete_post_confirm.php?id=<?= $post['id'] ?>" class="post-action delete-btn">
@@ -141,7 +144,7 @@
                 $direct_link = htmlspecialchars(BASE_PATH . '/anket/' . rawurlencode($p_slug) . '/' . (int)$p['id'], ENT_QUOTES, 'UTF-8');
             }
         ?>
-        <a href="<?= $direct_link ?>" class="post-card-icon">#P<?= $post['id'] ?></a>
+        <a href="<?= $direct_link ?>" class="post-card-icon">#<?= $post['id'] ?></a>
     </div>
     
     <?php if (isset($post['comments']) && !empty($post['comments'])): ?>
@@ -165,14 +168,16 @@
     
     <?php if ($current_user_id && !isset($hide_comment_form)): ?>
     <div class="post-card-comment-form">
-        <form method="POST" action="<?= BASE_PATH ?>/api/reply.php" class="form-no-padding" onsubmit="return false;">
+        <form method="POST" action="<?= BASE_PATH ?>/api/reply.php" class="form-no-padding">
             <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
             <input type="hidden" name="parent_id" value="<?= $post['id'] ?>">
             <input type="hidden" name="referer" value="<?= htmlspecialchars($_SERVER['REQUEST_URI']) ?>">
             <?php if (!empty($_REQUEST['sid'])): ?>
                 <input type="hidden" name="sid" value="<?= htmlspecialchars($_REQUEST['sid']) ?>">
             <?php endif; ?>
-            <input type="text" name="content" placeholder="Yorum yaz..." maxlength="500" required class="post-card-comment-input" onkeydown="if(event.key==='Enter'){this.form.submit();return false;}">
+            <label for="reply-content-<?= (int)$post['id'] ?>" class="sr-only">Yorum metni</label>
+            <button type="submit" class="post-comment-submit">Gönder</button>
+            <input id="reply-content-<?= (int)$post['id'] ?>" type="text" name="content" placeholder="Yorum yaz..." maxlength="500" required class="post-card-comment-input">
         </form>
     </div>
     <?php endif; ?>

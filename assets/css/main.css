@@ -27,7 +27,7 @@
 html { height: 100%; }
 body { height: 100%;
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    background: #f7fff1;
+    background:#f7fff1;
     color: #333;
     font-size: 16px;
     line-height: 1.6;
@@ -640,7 +640,7 @@ a:hover {
 
 
 /* Sidebar help component used in post-new */
-.sidebar-help { background:#f7fff1;padding:15px;border-radius:4px;font-size:12px;color:#666;line-height:1.6; }
+.sidebar-help { background:#e9e5cd;padding:15px;border-radius:4px;font-size:12px;color:#666;line-height:1.6; }
 .sidebar-help-title { font-weight:600;margin-bottom:10px;color:#333; }
 .sidebar-help-list { margin:0;padding-left:20px; }
 
@@ -1728,7 +1728,7 @@ body.bluesky-mode .content-container {
     border-radius: 4px;
     padding: 8px 10px;
     margin-bottom: 6px;
-    box-shadow: 0 1px 0 #f7fff1;
+    box-shadow: 0 1px 0 #e9e5cd;
 }
 
 .comment-thread .comment-header {
@@ -2396,7 +2396,7 @@ body > .main-container {
 /* Notification preview: allow multi-line previews and wrapping */
 .notification-preview {
     display: block;
-    background: #e9e5cd;
+    background: #f7fff1;
     color: #666;
     font-size: 13px;
     line-height: 1.4;
@@ -2847,7 +2847,7 @@ body > .main-container {
 
 .profile-rss-link.btn-compact:hover,
 .group-rss-link.btn-compact:hover {
-    background: #e9e5cd;
+    background: #f7fff1;
 }
 
 /* ensure the RSS button doesn't break layout next to headings */

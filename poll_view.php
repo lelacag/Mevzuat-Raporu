@@ -57,7 +57,7 @@ require_once __DIR__ . '/includes/header.php';
 $seo_url = BASE_PATH . '/anket/' . rawurlencode($poll['slug'] ?? (generate_slug($poll['title']) . '-' . $poll['id'])) . '/' . (int)$poll['id'];
 ?>
 <div class="main-container">
-    <main class="content-area narrow">
+    <main id="content" class="content-area narrow" role="main">
         <div class="card-box padded">
             <p class="muted small">SEO link: <a href="<?= htmlspecialchars($seo_url, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($seo_url) ?></a></p>
             <?php require __DIR__ . '/templates/poll-block.php'; ?>

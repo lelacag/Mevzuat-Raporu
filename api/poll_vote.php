@@ -12,20 +12,18 @@ if (!$user_id) {
     exit;
 }
 
-// CSRF protection
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && (empty($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token']))) {
-    $_SESSION['flash_error'] = 'Geçersiz istek (CSRF).';
-    $referer = $_POST['referer'] ?? $_SERVER['HTTP_REFERER'] ?? BASE_PATH . '/index.php';
-    $referer = validate_referer($referer, BASE_PATH . '/index.php', false);
-    header('Location: ' . $referer);
-    exit;
-}
-
 $poll_id = isset($_POST['poll_id']) ? (int)$_POST['poll_id'] : 0;
 $option_id = isset($_POST['option_id']) ? (int)$_POST['option_id'] : null;
 $remove = isset($_POST['remove']) ? true : false;
 $referer = $_POST['referer'] ?? $_SERVER['HTTP_REFERER'] ?? BASE_PATH . '/index.php';
 $referer = validate_referer($referer, BASE_PATH . '/index.php', false);
+
+// CSRF validation
+if (empty($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token'])) {
+    $_SESSION['flash_error'] = 'Geçersiz istek (CSRF).';
+    header('Location: ' . $referer);
+    exit;
+}
 
 if ($poll_id && ($option_id !== null || $remove)) {
     // If remove requested, use option_id 0 to indicate removal

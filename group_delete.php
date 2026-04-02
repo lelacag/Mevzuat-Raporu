@@ -41,7 +41,12 @@ if (!$member || $member['role'] !== 'admin') {
 
 // Handle delete confirmation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_delete'])) {
-    require_csrf();
+    // Verify CSRF token
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $csrf_token) {
+        $_SESSION['flash'] = 'Geçersiz istek.';
+        header('Location: ' . BASE_PATH . '/groups.php');
+        exit;
+    }
     
     try {
         $pdo->beginTransaction();

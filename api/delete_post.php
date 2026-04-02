@@ -11,15 +11,6 @@ if (!$user_id) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $post_id = $_POST['post_id'] ?? null;
-
-    // CSRF protection
-    if (empty($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token'])) {
-        $_SESSION['error'] = 'Geçersiz istek (CSRF).';
-        $referer = $_POST['referer'] ?? $_SERVER['HTTP_REFERER'] ?? BASE_PATH . '/index.php';
-        $referer = validate_referer($referer, BASE_PATH . '/index.php', false);
-        header('Location: ' . $referer);
-        exit;
-    }
     
     if (!$post_id) {
         $_SESSION['error'] = 'Geçersiz istek.';

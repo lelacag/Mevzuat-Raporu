@@ -45,9 +45,11 @@ if (!empty($user['email'])) {
         // Send email if mail is enabled
         if (defined('MAIL_ENABLED') && MAIL_ENABLED) {
             $subject = 'Hesap Silme Onayı - ' . SITE_NAME;
-            $message = "Merhaba " . $user['username'] . ",\n\n";
-            $message .= "Hesabınızı silmek istediğinizi bildirdiniz. Bu işlemi onaylamak için aşağıdaki kodu kullanın:\n\nOnay Kodu: " . $confirmation_token . "\n\n";
-            $message .= "Bu kod 1 saat geçerlidir. Bu işlemi siz yapmadıysanız, bu mesajı görmezden gelebilirsiniz.\n\n";
+            $message = "Merhaba " . htmlspecialchars($user['username']) . ",\n\n";
+            $message .= "Hesabınızı silmek istediğinizi bildirdiniz. Bu işlemi onaylamak için aşağıdaki kodu kullanın:\n\n";
+            $message .= "Onay Kodu: " . $confirmation_token . "\n\n";
+            $message .= "Bu kod 1 saat geçerlidir.\n\n";
+            $message .= "Bu işlemi siz yapmadıysanız, bu mesajı görmezden gelebilirsiniz.\n\n";
             $message .= SITE_NAME;
             
             send_email($user['email'], $subject, $message);

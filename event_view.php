@@ -1,6 +1,7 @@
 <?php /* EN + TR comments used. */
 // Event detail page (server-rendered, no-JS required)
-// Error reporting is now handled centrally by includes/config.php.
+error_reporting(E_ALL);
+ini_set('display_errors','1');
 
 require_once __DIR__ . '/includes/header.php';
 

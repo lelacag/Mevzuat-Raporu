@@ -86,7 +86,6 @@ if ($user_id && $user_role === 'admin' && $_SERVER['REQUEST_METHOD'] === 'POST' 
 // Handle tag insert / preview / and post creation for the group (no-JS friendly)
 $skip_create = false;
 if ($user_id && $is_member && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    require_csrf();
     // Insert tag button
     if (isset($_POST['insert_tag'])) {
         $draft = $_POST['content'] ?? get_draft($user_id);

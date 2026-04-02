@@ -13,15 +13,6 @@ if (!$user_id) {
     exit;
 }
 
-// CSRF protection
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && (empty($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token']))) {
-    $_SESSION['flash_error'] = 'Geçersiz istek (CSRF).';
-    $referer = $_POST['referer'] ?? ($_SERVER['HTTP_REFERER'] ?? (BASE_PATH . '/groups.php'));
-    $referer = validate_referer($referer, BASE_PATH . '/groups.php', false);
-    header('Location: ' . $referer);
-    exit;
-}
-
 $post_id = intval($_POST['post_id'] ?? 0);
 $content = trim($_POST['content'] ?? '');
 $referer = $_POST['referer'] ?? ($_SERVER['HTTP_REFERER'] ?? (BASE_PATH . '/groups.php'));

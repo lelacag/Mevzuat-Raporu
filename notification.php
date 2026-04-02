@@ -71,7 +71,6 @@ try {
 
 // Mark all notifications as read
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'mark_all_read') {
-    require_csrf();
     try {
         $pdo = db_connect();
         $stmt = $pdo->prepare("UPDATE notifications SET read_at = NOW() WHERE user_id = ? AND read_at IS NULL");
@@ -85,7 +84,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 // Mark single notification as read and redirect
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mark_read_id'])) {
-    require_csrf();
     $mark_read_id = $_POST['mark_read_id'] ?? 0;
     if ($mark_read_id) {
         try {
@@ -191,7 +189,6 @@ try {
             <h3 class="sidebar-widget-title">Bildirimler</h3>
             <a href="<?= BASE_PATH ?>/index.php" class="btn-block primary">← Geri Dön</a>
             <form method="POST" class="form-no-margin">
-                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
                 <input type="hidden" name="action" value="mark_all_read">
                 <button type="submit" class="btn-block">Tümünü Okundu İşaretle</button>
             </form>
@@ -338,7 +335,6 @@ try {
                     }
                     ?>
                     <form method="POST" class="form-block">
-                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
                         <input type="hidden" name="mark_read_id" value="<?= $notification['id'] ?>">
                         <article class="post-card notification-card <?= !$notification['read_at'] ? 'unread' : 'read' ?> <?= $icon ? 'has-icon' : 'no-icon' ?>">
                             <!-- Header: Icon + Username/Timestamp -->
