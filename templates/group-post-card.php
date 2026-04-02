@@ -96,7 +96,7 @@
             </form>
             <a href="<?= group_post_url($gp['slug'] ?? '', $gp['id']) ?>" class="post-action">💬 <?= (int)($gp['comment_count'] ?? 0) ?> Yorum</a>
             <?php if ($current_user_id == ($gp['user_id'] ?? null)): ?>
-                <a href="<?= edit_post_url($gp['id']) ?>" class="post-action edit-btn">✏️ Düzenle</a>
+                <a href="<?= group_edit_post_url($gp['slug'] ?? '', $gp['id']) ?>" class="post-action edit-btn">✏️ Düzenle</a>
                 <a href="<?= BASE_PATH ?>/group_post_delete_confirm.php?id=<?= $gp['id'] ?>&slug=<?= urlencode($gp['slug'] ?? '') ?>" class="post-action delete-btn">🗑️ Sil</a>
             <?php else: ?>
                 <form method="POST" action="<?= BASE_PATH ?>/api/report.php" class="action-form">

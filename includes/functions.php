@@ -1076,8 +1076,7 @@ function send_invite_email($email, $token) {
     $link = full_url(invite_url($token));
     $subj = SITE_NAME . " - Davetiniz var";
     $body = "Merhaba,\n\n" .
-            SITE_NAME . " platformuna davet edildiniz. Aşağıdaki bağlantı ile kayıt olursanız davetçi 1 ay premium üyelik kazanır:\n\n" .
-            $link . "\n\n" .
+            SITE_NAME . " platformuna davet edildiniz. Aşağıdaki bağlantı ile kayıt olursanız davetçi 1 ay premium üyelik kazanır: " . $link . "\n\n" .
             "Bağlantı 30 gün geçerlidir.";
     if (defined('MAIL_ENABLED') && MAIL_ENABLED) {
         send_email($email, $subj, $body);
@@ -1088,8 +1087,7 @@ function send_invite_reminder_email($email, $token) {
     $link = full_url(invite_url($token));
     $subj = SITE_NAME . " - Davet hatırlatması";
     $body = "Merhaba,\n\n" .
-            SITE_NAME . " platformuna davet edildiniz. Kayıt olmaya henüz devam etmediniz. Aşağıdaki bağlantıya tıklayarak kaydolabilirsiniz:\n\n" .
-            $link . "\n\n" .
+            SITE_NAME . " platformuna davet edildiniz. Kayıt olmaya henüz devam etmediniz. Aşağıdaki bağlantıya tıklayarak kaydolabilirsiniz: " . $link . "\n\n" .
             "Bu hatırlatma haftalık olarak gönderilmektedir.";
     if (defined('MAIL_ENABLED') && MAIL_ENABLED) {
         send_email($email, $subj, $body);
@@ -1252,7 +1250,7 @@ function create_signup_request($email, $ip, $country_code, $user_agent = '') {
         $subject = SITE_NAME . ' - E-posta Doğrulama';
     } else {
         $subject = 'E-posta Doğrulama - ' . SITE_NAME;
-        $body = "Merhaba,\n\nLütfen e-posta adresinizi doğrulamak için aşağıdaki bağlantıya tıklayın:\n\n" . full_url($verify_url) . "\n\nBu bağlantı " . REQUEST_TOKEN_EXPIRY_HOURS . " saat sonra geçersiz olacaktır.\n\n- " . SITE_NAME;
+        $body = "Merhaba,\n\nLütfen e-posta adresinizi doğrulamak için aşağıdaki bağlantıya tıklayın: " . full_url($verify_url) . "\n\nBu bağlantı " . REQUEST_TOKEN_EXPIRY_HOURS . " saat sonra geçersiz olacaktır.\n\n- " . SITE_NAME;
     }
     send_email($email, $subject, $body);
     return ['success' => true, 'token' => $token];
@@ -3912,9 +3910,9 @@ function send_email($to, $subject, $body) {
             }
             $mail->addAddress($to);
             $mail->Subject = $subject;
-            $mail->Body = $body;
-            $mail->AltBody = strip_tags($body);
-            $mail->isHTML(false);
+            $mail->isHTML(true);
+            $mail->Body = nl2br(htmlspecialchars($body, ENT_QUOTES, 'UTF-8'));
+            $mail->AltBody = $body;
             if ($mail->send()) {
                 error_log('[MAIL] PHPMailer send ok for ' . $to);
                 @file_put_contents('/tmp/mail_debug.log', date('c') . " PHPMailer ok to $to\n", FILE_APPEND);
@@ -3935,7 +3933,8 @@ function send_email($to, $subject, $body) {
     // Fallback to simple mail() if PHPMailer not available or SMTP not configured
     $headers = "From: " . $from_name . " <" . $from_email . ">\r\n";
     $headers .= "MIME-Version: 1.0\r\n";
-    $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+    $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+    $body = nl2br(htmlspecialchars($body, ENT_QUOTES, 'UTF-8'));
     if (defined('MAIL_ENABLED') && MAIL_ENABLED) {
         return mail($to, $subject, $body, $headers);
     } else {
@@ -4015,6 +4014,10 @@ function group_url($slug) {
 
 function group_post_url($slug, $post_id) {
     return BASE_PATH . '/g/' . urlencode($slug) . '/post/' . (int)$post_id;
+}
+
+function group_edit_post_url($slug, $post_id) {
+    return BASE_PATH . '/g/' . urlencode($slug) . '/post/' . (int)$post_id . '/edit';
 }
 
 function group_members_url($slug) {

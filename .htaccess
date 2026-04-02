@@ -118,6 +118,8 @@
     RewriteRule ^t/([^/]+)/?$              group.php?slug=$1       [L,QSA]
     RewriteRule ^g/([^/]+)/uyeler/?$       group_members.php?slug=$1 [L,QSA]
     RewriteRule ^t/([^/]+)/uyeler/?$       group_members.php?slug=$1 [L,QSA]
+    RewriteRule ^g/([^/]+)/post/([0-9]+)/edit/?$ group_post_edit.php?slug=$1&id=$2 [L,QSA]
+    RewriteRule ^t/([^/]+)/post/([0-9]+)/edit/?$ group_post_edit.php?slug=$1&id=$2 [L,QSA]
     RewriteRule ^g/([^/]+)/post/([0-9]+)/?$ group_post.php?slug=$1&id=$2 [L,QSA]
     RewriteRule ^t/([a-zA-Z0-9_-]+)/post/([0-9]+)/?$ group_post.php?slug=$1&id=$2 [L,QSA]
 
