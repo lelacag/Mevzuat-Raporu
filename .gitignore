@@ -1,19 +1,20 @@
-# Dependency or generated output
-public_html/vendor/
-public_html/tmp/
-public_html/logs/
-public_html/sitemap_cache/
-public_html/files_worked_on/
-public_html/cookies.txt
+# Bağımlılıklar ve üretilen çıktılar
+/vendor/
+/tmp/
+/logs/
+/sitemap_cache/
+/files_worked_on/
+/cookies.txt
 
-# Local runtime and secrets
-public_html/.env
-public_html/.env.*
-!public_html/.env.example
-public_html/.htaccess
-public_html/.user.ini
+# Yerel ortam ve gizli bilgiler
+.env
+.env.*
+!.env.example
+.htaccess
+.user.ini
+.setup_complete
 
-# OS/editor noise
+# İşletim sistemi / editör
 .DS_Store
 Thumbs.db
 .vscode/
@@ -22,7 +23,6 @@ Thumbs.db
 *.swo
 *~
 
-# Local backups / generated artifacts
+# Geçici dosyalar
 *.log
 *.tmp
-
