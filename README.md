@@ -2,7 +2,7 @@
 
 **Reklam, takip mekanizmaları ve veri madenciliği barındırmayan saf bir sosyal deneyimi. HTTPS protokolü ile verilerinizi güvence altına alırken, kullanıcıları izlemeyen yapısıyla gizliliğe önem veren yapısı vardır.**
 
-Paylaşım, gruplar, etkinlikler, takip sistemi ve bildirimlerle mevzuat ve kamu gündemini bir araya getiren sunucu taraflı bir PHP uygulaması.
+Paylaşım, gruplar, etkinlikler, takip sistemi ve bildirimlerle güncellenen bir platformdur.
 
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-777BB4?logo=php&logoColor=white)](https://www.php.net/)
 [![MySQL](https://img.shields.io/badge/MySQL%20%2F%20MariaDB-uyumlu-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
