@@ -1,43 +1,15 @@
-Mevzuat Raporu — Platform Overview
+# Mevzuat Raporu
 
-This document is a concise README you can upload to the repository manually.
+PHP web application for Mevzuat Raporu.
 
-Project: Mevzuat Raporu
+## Layout
 
-Short description
-- Mevzuat Raporu is a lightweight, server-rendered PHP social platform supporting posts, groups, events, followers, likes and notifications.
+Application sources live under `public_html/`.
 
-Tech stack
-- PHP (7.4 or later) running under PHP-FPM
-- MySQL / MariaDB
-- Apache for production; nginx often used for staging
-- Minimal client-side JavaScript; most rendering is server-side
+## Setup
 
-Key structure
-- `includes/`: bootstrap, configuration, helpers
-- `api/`: HTTP endpoints used by the app and admin actions
-- `modules/`: optional extensions (site-specific behavior)
-- `templates/`: HTML partials and card templates
-- `assets/`: CSS, images, fonts
+1. Copy `public_html/.env.example` to `public_html/.env` and fill in local values.
+2. Install PHP dependencies under `public_html/vendor/` as needed.
+3. Point the web server document root at `public_html/`.
 
-Recent v1.1 changes
-- Adds `modules/mevzuat_triggers.php` to enable a persistent system user, auto-follow and auto-like triggers.
-- `api/admin_approve_user.php` now uses a persistent system user (`Sistem`) to send account approval notifications and greetings.
-- Notification rendering improved to show system messages and saved greeting texts.
-
-Quick setup notes (dev/staging)
-1. Create a DB and user (example): `textsocialmedia_staging` / `staginguser`.
-2. Edit `includes/config.php` to set `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS`.
-3. Import `database_schema.sql` into the database.
-4. Ensure PHP-FPM is reachable (commonly `127.0.0.1:9000`) and your webserver vhost points to the project root.
-
-Deployment and releases
-- Create a branch (e.g. `release/v1.1`) and open a PR to `master`/`main`.
-- Keep secrets out of the repository; use server-side config files or environment variables.
-
-Contributing
-- Add optional features under `modules/` to keep them easily removable.
-- Run `php -l` to lint files before committing.
-
-Contact
-- For pull requests or deployment questions, open an issue or contact the repo owner.
+This repository intentionally does not include production secrets, local environment files, or deployment-specific Apache settings. Add your own values before running the app in a non-public environment.

@@ -1,0 +1,13 @@
+RewriteEngine On
+RewriteBase /
+
+# Example Apache rewrite configuration for a local PHP app.
+# Rename this file to .htaccess and adjust the rules to match your environment.
+
+Options -Indexes
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+
+# Add custom rules for your deployment as needed.

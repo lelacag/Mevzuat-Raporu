@@ -1,27 +1,28 @@
-# Environment files
-.env
-.env.local
-.env.production
+# Dependency or generated output
+public_html/vendor/
+public_html/tmp/
+public_html/logs/
+public_html/sitemap_cache/
+public_html/files_worked_on/
+public_html/cookies.txt
 
-# Logs
-logs/*.log
-logs/*.txt
-!logs/.htaccess
-!logs/.gitkeep
+# Local runtime and secrets
+public_html/.env
+public_html/.env.*
+!public_html/.env.example
+public_html/.htaccess
+public_html/.user.ini
 
-# Setup lock file
-.setup_complete
-
-# OS files
+# OS/editor noise
 .DS_Store
 Thumbs.db
-
-# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# Temporary files
-*.tmp
 *~
+
+# Local backups / generated artifacts
+*.log
+*.tmp
+

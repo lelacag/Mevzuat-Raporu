@@ -1,7 +1,0 @@
-/* Group-specific comment styles — reuses post_comment base */
-@import url('post_comment.css');
-
-/* Slight spacing adjustments for group post context */
-.post-form-container { margin-top: 12px; margin-bottom: 12px; }
-.posts-feed .padded { padding: 8px 0; }
-.group-comment-card { margin-bottom: 10px; }
