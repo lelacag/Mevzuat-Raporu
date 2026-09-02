@@ -1,6 +1,6 @@
 # Mevzuat Raporu
 
-**Türkiye’ye özel, hafif ve hızlı bir topluluk platformu.**
+**Reklam, takip mekanizmaları ve veri madenciliği barındırmayan saf bir sosyal deneyimi. HTTPS protokolü ile verilerinizi güvence altına alırken, kullanıcıları izlemeyen yapısıyla gizliliğe önem veren yapısı vardır.**
 
 Paylaşım, gruplar, etkinlikler, takip sistemi ve bildirimlerle mevzuat ve kamu gündemini bir araya getiren sunucu taraflı bir PHP uygulaması.
 
