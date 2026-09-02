@@ -13,12 +13,12 @@ Paylaşım, gruplar, etkinlikler, takip sistemi ve bildirimlerle mevzuat ve kamu
 
 ## Neden Mevzuat Raporu?
 
-- **Hızlı ve sade** — Ağır SPA yok; sayfalar sunucuda üretilir, ilk yükleme hafiftir.
+- **Hızlı ve sade** — Sayfalar sunucuda üretilir, ilk yükleme hafiftir.
 - **Topluluk odaklı** — Gönderi, yanıt, beğeni, favori ve takip akışları hazır.
-- **Gruplar & etkinlikler** — Mahalle / ilgi grubu ve etkinlik yönetimi tek platformda.
+- **Gruplar & etkinlikler** — İlgi grubu ve etkinlik yönetimi tek platformda.
 - **Yönetim paneli** — Kullanıcı onayı, raporlar, premium, rozetler ve denetim araçları.
 - **KVKK bilinci** — Gizlilik, çerez ve veri talebi akışları için temel sayfalar mevcut.
-- **Genişletilebilir** — `modules/` altında opsiyonel özellikler; çekirdek kod sade kalır.
+- **Genişletilebilir** — `modules/` altında tercihi özellikler; çekirdek kod sade kalır.
 
 ---
 
@@ -31,7 +31,7 @@ Paylaşım, gruplar, etkinlikler, takip sistemi ve bildirimlerle mevzuat ve kamu
 | **Etkinlikler** | Etkinlik sayfaları, katılım, güncelleme ve yorumlar |
 | **İçerik** | Anketler, fotoğraflar, arama, RSS / Atom |
 | **Hesap** | Kayıt, e-posta doğrulama, şifre sıfırlama, profil düzenleme |
-| **Premium** | Abonelik / ödeme iskeleti (Stripe & IAP uçları) |
+| **Premium** | Abonelik / ödeme iskeleti (Stripe & IAP uçları) | (Devreye Alım Aşaması)
 | **Yönetim** | Admin paneli, rapor çözümleme, IP engeli, rozet ve rol yönetimi |
 | **Güvenlik** | Captcha, oturum koruması, gizli anahtarlar ortam değişkenleriyle |
 
